@@ -1,15 +1,17 @@
 package com.winter.horobot.database;
 
-import com.winter.horobot.animals.fox.FoxState;
-import com.winter.horobot.animals.fox.FoxTemplate;
+import com.winter.horobot.animals.Item;
 import com.winter.horobot.core.Config;
 import com.winter.horobot.core.Main;
 import com.winter.horobot.profile.ProfileTemplate;
 import com.winter.horobot.animals.wolf.WolfTemplate;
+import com.winter.horobot.util.Report;
+import com.winter.horobot.util.Utility;
 import org.postgresql.ds.PGPoolingDataSource;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 
+import javax.imageio.ImageIO;
 import java.sql.*;
 import java.util.*;
 
@@ -25,13 +27,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS guilds;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -53,13 +55,96 @@ public class DataBase {
 										"bignore BOOLEAN DEFAULT false);";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(SQLException e) {
-			e.printStackTrace();
+		} catch(SQLException ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
+			}
+		}
+	}
+
+	public static void createGlobalBanSchema() {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			Statement statement = con.createStatement();
+			String sql = "CREATE SCHEMA IF NOT EXISTS globals;";
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if(con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+	}
+
+	public static void createGlobalBanTable() {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			Statement statement = con.createStatement();
+			String sql = "CREATE TABLE IF NOT EXISTS globals.ban (" +
+					"id TEXT PRIMARY KEY NOT NULL," +
+					"reason TEXT NOT NULL);";
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch(SQLException ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if(con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+	}
+
+	public static void createReportSchema() {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			Statement statement = con.createStatement();
+			String sql = "CREATE SCHEMA IF NOT EXISTS reports;";
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+	}
+
+	public static void createReportTable() {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			Statement statement = con.createStatement();
+			String sql = "CREATE TABLE IF NOT EXISTS reports.report (" +
+					"reportID TEXT PRIMARY KEY NOT NULL," +
+					"id TEXT NOT NULL," +
+					"target TEXT NOT NULL," +
+					"reason TEXT NOT NULL," +
+					"messageID TEXT DEFAULT 'NONE');";
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch(SQLException ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if(con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -72,13 +157,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS foxes;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (SQLException ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -99,13 +184,13 @@ public class DataBase {
 					"background TEXT DEFAULT 'None');";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (SQLException ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -118,13 +203,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS channels;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -139,13 +224,13 @@ public class DataBase {
 					"mod TEXT DEFAULT 'none');";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -158,13 +243,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS wolves;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -181,24 +266,24 @@ public class DataBase {
 					"hunger INTEGER NOT NULL DEFAULT 0," +
 					"maxHunger INTEGER NOT NULL DEFAULT 2," +
 					"fedTimes INTEGER NOT NULL DEFAULT 0," +
-					"background TEXT NOT NULL DEFAULT 'None'," +
-					"hat TEXT NOT NULL DEFAULT 'None'," +
-					"body TEXT NOT NULL DEFAULT 'None'," +
-					"paws TEXT NOT NULL DEFAULT 'None'," +
-					"tail TEXT NOT NULL DEFAULT 'None'," +
-					"shirt TEXT NOT NULL DEFAULT 'None'," +
-					"nose TEXT NOT NULL DEFAULT 'None'," +
-					"eye TEXT NOT NULL DEFAULT 'None'," +
-					"neck TEXT NOT NULL DEFAULT 'None');";
+					"background TEXT NOT NULL DEFAULT 'NONE0'," +
+					"hat TEXT NOT NULL DEFAULT 'NONE1'," +
+					"body TEXT NOT NULL DEFAULT 'NONE2'," +
+					"paws TEXT NOT NULL DEFAULT 'NONE3'," +
+					"tail TEXT NOT NULL DEFAULT 'NONE4'," +
+					"shirt TEXT NOT NULL DEFAULT 'NONE5'," +
+					"nose TEXT NOT NULL DEFAULT 'NONE6'," +
+					"eye TEXT NOT NULL DEFAULT 'NONE7'," +
+					"neck TEXT NOT NULL DEFAULT 'NONE8');";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -211,13 +296,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS blacklists;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -234,13 +319,13 @@ public class DataBase {
 					"PRIMARY KEY (id, userID));";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -253,13 +338,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS tags;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -276,13 +361,13 @@ public class DataBase {
 					"PRIMARY KEY (id, tag));";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -295,13 +380,13 @@ public class DataBase {
 			String sql = "CREATE SCHEMA IF NOT EXISTS users;";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -317,13 +402,13 @@ public class DataBase {
 					"PRIMARY KEY (id, item));";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -340,16 +425,17 @@ public class DataBase {
 					"xp INTEGER NOT NULL DEFAULT 0," +
 					"maxXp INTEGER NOT NULL DEFAULT 300," +
 					"foxCoins INTEGER NOT NULL DEFAULT 0," +
-					"background TEXT NOT NULL DEFAULT 'None');";
+					"background TEXT NOT NULL DEFAULT 'NONE0'," +
+					"notifications BOOLEAN NOT NULL DEFAULT false);";
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -364,13 +450,33 @@ public class DataBase {
 					user.getStringID());
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
+			}
+		}
+	}
+
+	public static void insertGlobalBan(IUser target, String reason) {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			PreparedStatement statement = con.prepareStatement("INSERT INTO globals.ban (id, reason) VALUES (?, ?) ON CONFLICT DO NOTHING;");
+			statement.setString(1, target.getStringID());
+			statement.setString(2, reason);
+			statement.executeUpdate();
+			statement.close();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if(con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -382,18 +488,112 @@ public class DataBase {
 			PreparedStatement statement = con.prepareStatement("UPDATE users.user SET " + index + " = ? WHERE id = ?");
 			if(value instanceof String) statement.setString(1, (String) value);
 			if(value instanceof Integer) statement.setInt(1, (int) value);
+			if(value instanceof Boolean) statement.setBoolean(1, (boolean) value);
 			statement.setString(2, user.getStringID());
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
+	}
+
+	public static String submitReport(IUser author, IUser target, String reason) {
+		Connection con = null;
+		try {
+			String reportID = UUID.randomUUID().toString();
+			con = source.getConnection();
+			PreparedStatement statement = con.prepareStatement("INSERT INTO reports.report (reportID, id, target, reason) VALUES (?, ?, ?, ?);");
+			statement.setString(1, reportID);
+			statement.setString(2, author.getStringID());
+			statement.setString(3, target.getStringID());
+			statement.setString(4, reason);
+			statement.executeUpdate();
+			statement.close();
+			return reportID;
+		} catch (SQLException ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+		return null;
+	}
+
+	public static Report queryReport(String reportID) {
+		Report report = null;
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			PreparedStatement statement = con.prepareStatement("SELECT * FROM reports.report WHERE reportID = ?;");
+			statement.setString(1, reportID);
+			ResultSet set = statement.executeQuery();
+			if (set.next()) {
+				report = new Report(set.getString("reportID"), set.getString("messageID"), Main.INSTANCE.client.getUserByID(Long.parseUnsignedLong(set.getString("id"))), Main.INSTANCE.client.getUserByID(Long.parseUnsignedLong(set.getString("target"))), set.getString("reason"));
+			}
+			statement.close();
+		} catch (SQLException ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+		return report;
+	}
+
+	public static boolean queryGlobalBan(IUser user) {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			PreparedStatement statement = con.prepareStatement("SELECT * FROM globals.ban WHERE id = ?;");
+			statement.setString(1, user.getStringID());
+			ResultSet set = statement.executeQuery();
+			if (set.next())
+				return true;
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+		return false;
+	}
+
+	public static String updateReport(String reportID, String index, String value) {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			PreparedStatement statement = con.prepareStatement("UPDATE reports.report SET " + index + " = ? WHERE reportID = ?;");
+			statement.setString(1, value);
+			statement.setString(2, reportID);
+			statement.executeUpdate();
+			statement.close();
+			return reportID;
+		} catch (SQLException ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
+		}
+		return null;
 	}
 
 	public static ProfileTemplate queryUser(IUser user) {
@@ -406,24 +606,26 @@ public class DataBase {
 					"SELECT * FROM users.user WHERE id='%s'",
 					user.getStringID());
 			ResultSet set = statement.executeQuery(sql);
-			while(set.next()) {
+			if(set.next()) {
 				template = new ProfileTemplate(
-						user.getName(),
+						user,
 						set.getString("description"),
 						set.getInt("level"),
 						set.getInt("xp"),
 						set.getInt("maxXp"),
 						set.getInt("foxCoins"),
-						set.getString("background"));
+						set.getString("background").toUpperCase(),
+						set.getBoolean("notifications")
+				);
 			}
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return template;
@@ -441,13 +643,13 @@ public class DataBase {
 					return set.getInt("rank");
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return 0;
@@ -471,13 +673,13 @@ public class DataBase {
 				builder.append(complete);
 			}
 			return builder.toString();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return "An unexpected exception occurred while querying ranks";
@@ -493,13 +695,13 @@ public class DataBase {
 			statement.setString(2, item);
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -515,13 +717,13 @@ public class DataBase {
 			statement.setString(3, content);
 			statement.executeUpdate();
 			statement.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -537,42 +739,42 @@ public class DataBase {
 			statement.setString(3, blacklistedBy);
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
 
-	public static String queryItem(IUser user, String item) {
+	public static Item queryItem(IUser user, String item) {
 		Connection con = null;
 		try {
 			con = source.getConnection();
-			String sql = "SELECT item FROM users.item WHERE id=? AND item=?;";
+			String sql = "SELECT item FROM users.item WHERE id=? AND UPPER(item)=UPPER(?);";
 			PreparedStatement statement = con.prepareStatement(sql);
 			statement.setString(1, user.getStringID());
 			statement.setString(2, item);
 			ResultSet set = statement.executeQuery();
 			if(!set.next())
 				return null;
-			return set.getString("item");
-		} catch(Exception e) {
-			e.printStackTrace();
+			return Utility.getItemByName(set.getString("item").toUpperCase());
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return null;
 	}
 
-	public static List<String> queryItems(IUser user) {
+	public static List<Item> queryItems(IUser user) {
 		Connection con = null;
 		try {
 			con = source.getConnection();
@@ -580,18 +782,20 @@ public class DataBase {
 			PreparedStatement statement = con.prepareStatement(sql);
 			statement.setString(1, user.getStringID());
 			ResultSet set = statement.executeQuery();
-			List<String> list = new ArrayList<>();
+			List<Item> list = new ArrayList<>();
 			while (set.next()) {
-				list.add(String.valueOf(set.getString("item")));
+				Item item = Utility.getItemByName(String.valueOf(set.getString("item").toUpperCase()));
+				if (item != null)
+					list.add(item);
 			}
 			return list;
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return null;
@@ -609,12 +813,14 @@ public class DataBase {
 			while (set.next()) {
 				if (user.getStringID().equals(set.getString("userID"))) return true;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) { }
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
 		}
 		return false;
 	}
@@ -631,12 +837,14 @@ public class DataBase {
 			while (set.next()) {
 				if (userID.equals(set.getString("userID"))) return true;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
-			try {
-				con.close();
-			} catch (SQLException e) { }
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
+			}
 		}
 		return false;
 	}
@@ -655,26 +863,26 @@ public class DataBase {
 				String by = null;
 				try {
 					user = set.getString("userID");
-				} catch (NullPointerException | NumberFormatException e) {
-					e.printStackTrace();
+				} catch (NullPointerException | NumberFormatException ignored) {
+					ignored.printStackTrace();
 				}
 
 				try {
 					by = set.getString("by");
-				} catch (NullPointerException | NumberFormatException e) {
-					e.printStackTrace();
+				} catch (NullPointerException | NumberFormatException ignored) {
+					ignored.printStackTrace();
 				}
 
 				blacklist.put(user, by);
 			}
 			return blacklist;
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return null;
@@ -693,13 +901,13 @@ public class DataBase {
 				tags.put(set.getString("tag"), set.getString("content"));
 			}
 			return tags;
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return null;
@@ -717,90 +925,16 @@ public class DataBase {
 			if (set.next()) {
 				return set.getString("content");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return null;
-	}
-
-	public static void insertFox(IUser user) {
-		Connection con = null;
-		try {
-			con = source.getConnection();
-			String sql = "INSERT INTO foxes.fox (id) VALUES (?) ON CONFLICT DO NOTHING;";
-			PreparedStatement statement = con.prepareStatement(sql);
-			statement.setString(1, user.getStringID());
-			statement.executeUpdate();
-			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (con != null) {
-				try {
-					con.close();
-				} catch (SQLException e) { }
-			}
-		}
-	}
-
-	public static void updateFox(IUser user, String index, Object value) {
-		Connection con = null;
-		try {
-			con = source.getConnection();
-			PreparedStatement statement = con.prepareStatement("UPDATE foxes.fox SET " + index + " = ? WHERE id = ?");
-			if(value instanceof String) statement.setString(1, (String) value);
-			if(value instanceof Integer) statement.setInt(1, (int) value);
-			statement.setString(2, user.getStringID());
-			statement.executeUpdate();
-			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(con != null) {
-				try {
-					con.close();
-				} catch (SQLException e) { }
-			}
-		}
-	}
-
-	public static FoxTemplate foxQuery(IUser user) {
-		Connection con = null;
-		FoxTemplate template = null;
-		try {
-			con = source.getConnection();
-			Statement statement = con.createStatement();
-			String sql = String.format("SELECT * FROM foxes.fox WHERE id='%s'", user.getStringID());
-			ResultSet set = statement.executeQuery(sql);
-
-			set.next();
-			template = new FoxTemplate(
-					set.getString("name"),
-					set.getInt("level"),
-					set.getInt("xp"),
-					set.getInt("maxXP"),
-					set.getInt("fedTimes"),
-					FoxState.FOX_STATE.valueOf(set.getString("state")),
-					set.getString("background")
-			);
-			set.close();
-			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(con != null) {
-				try {
-					con.close();
-				} catch (SQLException e) { }
-			}
-		}
-		return template;
 	}
 
 	public static void insertWolf(IUser user) {
@@ -812,13 +946,13 @@ public class DataBase {
 			statement.setString(1, user.getStringID());
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -833,13 +967,13 @@ public class DataBase {
 			statement.setString(2, user.getStringID());
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -854,13 +988,13 @@ public class DataBase {
 					guildID);
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -876,13 +1010,13 @@ public class DataBase {
 			statement.setString(2, guildID);
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -897,13 +1031,13 @@ public class DataBase {
 										mod);
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -918,13 +1052,13 @@ public class DataBase {
 					channelID);
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -939,13 +1073,13 @@ public class DataBase {
 			if(set.next()) {
 				return set.getString(index);
 			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return null;
@@ -961,13 +1095,13 @@ public class DataBase {
 			if(set.next()) {
 				return set.getBoolean(index);
 			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return true;
@@ -983,13 +1117,13 @@ public class DataBase {
 			if(set.next()) {
 				return set.getBoolean("lvlup");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return true;
@@ -1005,13 +1139,13 @@ public class DataBase {
 			if(set.next()) {
 				return set.getString("mod");
 			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return "None";
@@ -1026,32 +1160,98 @@ public class DataBase {
 			String sql = String.format("SELECT * FROM wolves.wolf WHERE id='%s'", user.getStringID());
 			ResultSet set = statement.executeQuery(sql);
 
-			set.next();
-			template = new WolfTemplate(
-					set.getString("name"),
-					set.getInt("level"),
-					set.getInt("hunger"),
-					set.getInt("maxHunger"),
-					set.getInt("fedTimes"),
-					set.getString("background"),
-					set.getString("hat"),
-					set.getString("body"),
-					set.getString("paws"),
-					set.getString("tail"),
-					set.getString("shirt"),
-					set.getString("nose"),
-					set.getString("eye"),
-					set.getString("neck")
-			);
+			if (set.next()) {
+				String background;
+				String hat;
+				String body;
+				String paws;
+				String tail;
+				String shirt;
+				String nose;
+				String eye;
+				String neck;
+				/*
+				hat = Utility.getItemByName(set.getString("hat").toUpperCase()).getFile();
+					body = Utility.getItemByName(set.getString("body").toUpperCase()).getFile();
+					paws = Utility.getItemByName(set.getString("paws").toUpperCase()).getFile();
+					tail = Utility.getItemByName(set.getString("tail").toUpperCase()).getFile();
+					shirt = Utility.getItemByName(set.getString("shirt").toUpperCase()).getFile();
+					nose = Utility.getItemByName(set.getString("nose").toUpperCase()).getFile();
+					eye = Utility.getItemByName(set.getString("eye").toUpperCase()).getFile();
+					neck = Utility.getItemByName(set.getString("neck").toUpperCase()).getFile();
+				 */
+				try {
+					background = Utility.getItemByName(set.getString("background").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					background = new Item("/wolf/none.png", "NONE0", 0).getFile();
+				}
+				try {
+					hat = Utility.getItemByName(set.getString("hat").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					hat = new Item("/wolf/none.png", "NONE1", 1).getFile();
+				}
+				try {
+					body = Utility.getItemByName(set.getString("body").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					body = new Item("/wolf/none.png", "NONE2", 0).getFile();
+				}
+				try {
+					paws = Utility.getItemByName(set.getString("paws").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					paws = new Item("/wolf/none.png", "NONE3", 0).getFile();
+				}
+				try {
+					tail = Utility.getItemByName(set.getString("tail").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					tail = new Item("/wolf/none.png", "NONE4", 0).getFile();
+				}
+				try {
+					shirt = Utility.getItemByName(set.getString("shirt").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					shirt = new Item("/wolf/none.png", "NONE5", 0).getFile();
+				}
+				try {
+					nose = Utility.getItemByName(set.getString("nose").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					nose = new Item("/wolf/none.png", "NONE6", 0).getFile();
+				}
+				try {
+					eye = Utility.getItemByName(set.getString("eye").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					eye = new Item("/wolf/none.png", "NONE7", 0).getFile();
+				}
+				try {
+					neck = Utility.getItemByName(set.getString("neck").toUpperCase()).getFile();
+				} catch (NullPointerException e) {
+					neck = new Item("/wolf/none.png", "NONE8", 0).getFile();
+				}
+
+				template = new WolfTemplate(
+						set.getString("name"),
+						set.getInt("level"),
+						set.getInt("hunger"),
+						set.getInt("maxHunger"),
+						set.getInt("fedTimes"),
+						background,
+						hat,
+						body,
+						paws,
+						tail,
+						shirt,
+						nose,
+						eye,
+						neck
+				);
+			}
 			set.close();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 		return template;
@@ -1065,13 +1265,32 @@ public class DataBase {
 			String sql = String.format("DELETE FROM guilds.guild WHERE id='%s';", guildID);
 			statement.executeUpdate(sql);
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
+			}
+		}
+	}
+
+	public static void closeReport(String reportID) {
+		Connection con = null;
+		try {
+			con = source.getConnection();
+			PreparedStatement statement = con.prepareStatement("DELETE FROM reports.report WHERE reportID = ?;");
+			statement.setString(1, reportID);
+			statement.executeUpdate();
+			statement.close();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
+		} finally {
+			if(con != null) {
+				try {
+					con.close();
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -1086,13 +1305,13 @@ public class DataBase {
 			statement.setString(2, userID);
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -1107,51 +1326,13 @@ public class DataBase {
 			statement.setString(2, tag);
 			statement.executeUpdate();
 			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		} finally {
 			if(con != null) {
 				try {
 					con.close();
-				} catch (SQLException e) { }
-			}
-		}
-	}
-
-	public static void deleteChannel(String channelID) {
-		Connection con = null;
-		try {
-			con = source.getConnection();
-			Statement statement = con.createStatement();
-			String sql = String.format("DELETE FROM channels.channel WHERE id='%s';", channelID);
-			statement.executeUpdate(sql);
-			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(con != null) {
-				try {
-					con.close();
-				} catch (SQLException e) { }
-			}
-		}
-	}
-
-	public static void deleteWolf(IUser user) {
-		Connection con = null;
-		try {
-			con = source.getConnection();
-			PreparedStatement statement = con.prepareStatement("DELETE FROM wolves.wolf WHERE id=?;");
-			statement.setString(1, user.getStringID());
-			statement.executeUpdate();
-			statement.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			if(con != null) {
-				try {
-					con.close();
-				} catch (SQLException e) { }
+				} catch (SQLException ignored) { }
 			}
 		}
 	}
@@ -1165,10 +1346,10 @@ public class DataBase {
 			source.setServerName("localhost");
 			source.setDatabaseName("postgres");
 			source.setUser("postgres");
-			source.setPassword(Config.dataBasePassword);
-			source.setMaxConnections(10);
-		} catch(Exception e) {
-			e.printStackTrace();
+			source.setPassword(Config.DATABASE_PASSWORD);
+			source.setMaxConnections(1000);
+		} catch(Exception ignored) {
+			ignored.printStackTrace();
 		}
 	}
 }

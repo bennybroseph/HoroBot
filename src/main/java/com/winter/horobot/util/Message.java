@@ -33,7 +33,6 @@ import java.io.InputStream;
 public class Message {
 
 	public static void sendFile(IChannel channel, String message, File file) {
-		// TODO: Add these modified checks in the rest of the Message class
 		if(channel.getModifiedPermissions(channel.getClient().getOurUser().getRolesForGuild(channel.getGuild()).get(0)).contains(Permissions.SEND_MESSAGES)) {
 			RequestBuffer.request(() -> {
 				try {
@@ -58,18 +57,17 @@ public class Message {
 		});
 	}
 
-	public static void sendEmbed(IChannel channel, String message, EmbedObject embed, boolean tts) {
+	public static IMessage sendEmbed(IChannel channel, String message, EmbedObject embed, boolean tts) {
 		RequestBuffer.request(() -> {
-			try {
-				channel.sendMessage(message, embed, tts);
-			} catch (Exception e) {
-				if(e instanceof RateLimitException) {
-					throw e;
-				} else {
-					channel.sendMessage("No results");
-				}
-			}
+			return channel.sendMessage(message, embed, tts);
 		});
+		return null;
+	}
+
+	public static IMessage sendEmbedGet(IChannel channel, String message, EmbedObject embed, boolean tts) {
+		return RequestBuffer.request(() -> {
+			return channel.sendMessage(message, embed, tts);
+		}).get();
 	}
 
 	public static void sendPMEmbed(IUser user, String message, EmbedObject embed, boolean tts) {

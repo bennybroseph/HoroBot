@@ -12,19 +12,23 @@ public class Cooldowns {
 	 * Makes a cooldown for user and bucket
 	 *
 	 * @param bucket The bucket (cooldown name)
-	 * @param length Length of the cooldown
 	 * @param user The user to cool down
 	 *
 	 * @return true if the cooldown isn't over
 	 */
-	public static boolean onCooldown(String bucket, long length, IUser user) {
+	public static boolean onCooldown(String bucket, IUser user) {
 		HashMap<String, Long> bket = COOLDOWNS.computeIfAbsent(bucket, d -> new HashMap<>());
-		return System.currentTimeMillis() - bket.computeIfAbsent(user.getStringID(), d -> 0L) < length;
+		return bket.getOrDefault(user.getStringID(), 0L) > System.currentTimeMillis();
 	}
 
-	public static long getRemaining(String bucket, long length, IUser user) {
+	public static long getRemaining(String bucket, IUser user) {
+		HashMap<String, Long> bket = COOLDOWNS.computeIfAbsent(bucket, d-> new HashMap<>());
+		return getCooldownEndTime(bucket, user) - System.currentTimeMillis();
+	}
+
+	public static long getCooldownEndTime(String bucket, IUser user) {
 		HashMap<String, Long> bket = COOLDOWNS.computeIfAbsent(bucket, d -> new HashMap<>());
-		return (length - (System.currentTimeMillis() - bket.putIfAbsent(user.getStringID(), 0L)));
+		return bket.getOrDefault(user.getStringID(), 0L);
 	}
 
 	/**
@@ -33,8 +37,8 @@ public class Cooldowns {
 	 * @param bucket The bucket
 	 * @param user The user
 	 */
-	public static void putOnCooldown(String bucket, IUser user){
+	public static void putOnCooldown(String bucket, IUser user, long cooldown){
 		HashMap<String, Long> bket = COOLDOWNS.computeIfAbsent(bucket, d -> new HashMap<>());
-		bket.put(user.getStringID(), System.currentTimeMillis());
+		bket.put(user.getStringID(), System.currentTimeMillis() + cooldown);
 	}
 }

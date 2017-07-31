@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.fuyusan.horobot</groupId>
+    <groupId>com.winter.horobot</groupId>
     <artifactId>HoroBot</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -82,8 +82,14 @@
     <dependencies>
         <dependency>
             <groupId>com.github.austinv11</groupId>
-            <artifactId>Discord4j</artifactId>
-            <version>2.8.1</version>
+            <artifactId>Discord4J</artifactId>
+            <version>2.8.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.TsundereBug</groupId>
+            <artifactId>IAmAshamedToMakeThis</artifactId>
+            <version>b3af4c7</version>
         </dependency>
 
         <dependency>
@@ -123,9 +129,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.ArsenArsen</groupId>
-            <artifactId>Open-Imaging</artifactId>
-            <version>patch-1-SNAPSHOT</version>
+            <groupId>com.github.rtyley</groupId>
+            <artifactId>animated-gif-lib-for-java</artifactId>
+            <version>animated-gif-lib-1.2</version>
         </dependency>
     </dependencies>
 </project>

@@ -18,15 +18,14 @@
 
 package com.winter.horobot.core;
 
-import com.winter.horobot.command.commands.admin.*;
-import com.winter.horobot.command.commands.dev.CommandEval;
-import com.winter.horobot.command.commands.dev.CommandReboot;
-import com.winter.horobot.command.commands.dev.CommandTest;
-import com.winter.horobot.command.commands.image.*;
-import com.winter.horobot.command.commands.misc.*;
-import com.winter.horobot.command.commands.profile.CommandProfile;
-import com.winter.horobot.command.commands.utility.*;
-import com.winter.horobot.command.commands.animals.wolf.CommandWolf;
+import com.winter.horobot.command.impl.admin.*;
+import com.winter.horobot.command.impl.dev.CommandEval;
+import com.winter.horobot.command.impl.dev.CommandReports;
+import com.winter.horobot.command.impl.image.*;
+import com.winter.horobot.command.impl.misc.*;
+import com.winter.horobot.command.impl.profile.CommandProfile;
+import com.winter.horobot.command.impl.utility.*;
+import com.winter.horobot.command.impl.animals.wolf.CommandWolf;
 import com.winter.horobot.command.proccessing.AnnotationListener;
 import com.winter.horobot.command.proccessing.Command;
 import com.winter.horobot.command.proccessing.CommandContainer;
@@ -38,15 +37,21 @@ import com.winter.horobot.util.music.GuildMusicManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.winter.horobot.command.commands.fun.*;
-import com.winter.horobot.command.commands.music.*;
+import com.winter.horobot.command.impl.fun.*;
+import com.winter.horobot.command.impl.music.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventDispatcher;
+import sx.blah.discord.util.EmbedBuilder;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.awt.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,6 +91,10 @@ public class Main {
 		DataBase.createBlacklistTable();
 		DataBase.createTagSchema();
 		DataBase.createTagTable();
+		DataBase.createReportSchema();
+		DataBase.createReportTable();
+		DataBase.createGlobalBanSchema();
+		DataBase.createGlobalBanTable();
 
 		INSTANCE = ClientManager.createClient();
 		EventDispatcher dispatcher = INSTANCE.client.getDispatcher();
@@ -102,7 +111,6 @@ public class Main {
 		commands.put("ps", new CommandPornStar());
 		commands.put("8ball", new CommandEightball());
 		commands.put("stats", new CommandStats());
-		commands.put("reboot", new CommandReboot());
 		commands.put("assign", new CommandAssignRole());
 		commands.put("remove", new CommandRemoveRole());
 		commands.put("woop", new CommandWoop());
@@ -111,7 +119,7 @@ public class Main {
 		commands.put("cat", new CommandCat());
 		commands.put("ping", new CommandPing());
 		commands.put("github", new CommandGitHub());
-		//commands.put("channel", new CommandChannel());
+		commands.put("channel", new CommandChannel());
 		commands.put("kick", new CommandKick());
 		commands.put("ban", new CommandBan());
 		commands.put("rate", new CommandRate());
@@ -137,7 +145,6 @@ public class Main {
 		commands.put("translate", new CommandTranslate());
 		commands.put("wolf", new CommandWolf());
 		commands.put("profile", new CommandProfile());
-		//commands.put("fox", new CommandFox());
 		commands.put("volume", new CommandVolume());
 		//commands.put("test", new CommandTest());
 		commands.put("server", new CommandServerInfo());
@@ -152,6 +159,9 @@ public class Main {
 		commands.put("togglelvlup", new CommandToggleLevelUp());
 		commands.put("blacklist", new CommandBlackList());
 		commands.put("tag", new CommandTag());
+		commands.put("report", new CommandReport());
+		commands.put("reports", new CommandReports());
+		commands.put("trigger", new CommandTriggered());
 
 		musicManagers = new HashMap<>();
 		playerManager = new DefaultAudioPlayerManager();
@@ -175,38 +185,67 @@ public class Main {
 
 	public static void handleCommand(CommandContainer cmd) {
 		if (commands.containsKey(cmd.invoke)) {
-			if(cmd.event.getChannel().isPrivate()) {
-				if (!cmd.invoke.equals("help") && !cmd.invoke.equals("invite")) {
-					Message.sendRawMessageInChannel(cmd.event.getChannel(), "I can only execute the commands `.horohelp` and `.horoinvite` in pm, sorry!");
-					return;
-				}
-			}
-			boolean safe = commands.get(cmd.invoke).called(cmd.args, cmd.event);
-			if(cmd.event.getAuthor().getStringID().equals("288996157202497536")) safe = true;
-
-			if(safe) {
-				for (String arg : cmd.args) {
-					for (String tag : bannedTags) {
-						if (arg.equals(tag)) {
-							Message.sendMessageInChannel(cmd.event.getChannel(), "banned-tag");
-							return;
-						}
+			if (!DataBase.queryGlobalBan(cmd.event.getAuthor())) {
+				if (DataBase.queryIsBlacklisted(cmd.event.getGuild(), cmd.event.getAuthor())) {
+					if (DataBase.guildBooleanQuery(cmd.event.getGuild().getStringID(), "bignore")) {
+						return;
 					}
 				}
-				cmd.event.getChannel().setTypingStatus(true);
-				commands.get(cmd.invoke).action(cmd.args, cmd.beheaded, cmd.event);
-				commands.get(cmd.invoke).executed(true, cmd.event);
-				cmd.event.getChannel().setTypingStatus(false);
+				if (cmd.event.getChannel().isPrivate()) {
+					if (!cmd.invoke.equals("help") && !cmd.invoke.equals("invite")) {
+						Message.sendRawMessageInChannel(cmd.event.getChannel(), "I can only execute the commands `.horohelp` and `.horoinvite` in pm, sorry!");
+						return;
+					}
+				}
+				boolean safe = commands.get(cmd.invoke).called(cmd.args, cmd.event);
+				if (cmd.event.getAuthor().getStringID().equals("288996157202497536")) safe = true;
+
+				if (safe) {
+					for (String arg : cmd.args) {
+						for (String tag : bannedTags) {
+							if (arg.equals(tag)) {
+								Message.sendMessageInChannel(cmd.event.getChannel(), "banned-tag");
+								return;
+							}
+						}
+					}
+					cmd.event.getChannel().setTypingStatus(true);
+					try {
+						commands.get(cmd.invoke).action(cmd.args, cmd.beheaded, cmd.event);
+					} catch (RateLimitException | MissingPermissionsException de) {
+						throw de;
+					} catch (Exception e) {
+						if (!Config.DEBUG) {
+							Message.sendMessageInChannel(cmd.event.getChannel(), "error");
+							EmbedBuilder builder = new EmbedBuilder();
+							builder.withColor(Color.RED);
+							builder.withTimestamp(LocalDateTime.now());
+							builder.appendField("Guild", cmd.event.getGuild().getName(), true);
+							builder.appendField("ID", cmd.event.getGuild().getStringID(), true);
+							builder.appendField("Command Invoked", cmd.invoke, true);
+							builder.appendField("Raw", cmd.raw, true);
+							StringWriter sw = new StringWriter();
+							PrintWriter pw = new PrintWriter(sw, true);
+							e.printStackTrace(pw);
+							builder.appendField("Stacktrace", sw.getBuffer().toString().substring(0, 1024), false);
+							Message.sendEmbed(cmd.event.getClient().getGuildByID(288999138140356608L).getChannelByID(316927422316412929L), "", builder.build(), false);
+							cmd.event.getChannel().setTypingStatus(false);
+							return;
+						} else {
+							e.printStackTrace();
+						}
+					}
+					commands.get(cmd.invoke).executed(true, cmd.event);
+					cmd.event.getChannel().setTypingStatus(false);
+				} else {
+					RequestBuffer.request(() -> cmd.event.getMessage().addReaction("\uD83D\uDEAB"));
+					commands.get(cmd.invoke).executed(false, cmd.event);
+				}
 			} else {
-				RequestBuffer.request(() -> {
-					cmd.event.getMessage().addReaction("\uD83D\uDEAB");
-				});
-				commands.get(cmd.invoke).executed(false, cmd.event);
+				RequestBuffer.request(() -> cmd.event.getMessage().addReaction("\uD83D\uDD10"));
 			}
 		} else {
-			RequestBuffer.request(() -> {
-				cmd.event.getMessage().addReaction("❓");
-			});
+			RequestBuffer.request(() -> cmd.event.getMessage().addReaction("❓"));
 		}
 	}
 }

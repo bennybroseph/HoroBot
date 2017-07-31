@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public enum CommandType {
 	ADMIN(0, "Admin"),
-	ANIMAL(1, "Animals"),
+	ANIMAL(1, "Template"),
 	DEVELOPER(2, "Developer Only"),
 	FUN(3, "Fun"),
 	IMAGE(4, "Image"),

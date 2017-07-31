@@ -18,7 +18,7 @@ public class WolfProfileBuilder {
 	private static final int width = 300;
 	private static final int height = 150;
 
-	private static final double multiplier = 2.5;
+	private static final double multiplier = 1;
 
 	public static EmbedObject generateEmbed(IUser user) {
 		final WolfTemplate template = DataBase.wolfQuery(user);
@@ -47,9 +47,8 @@ public class WolfProfileBuilder {
 		graphics.drawImage(wolf.getTemplate(), 0, 0, width, height, null);
 
 		// Draw the wolf
-		final double calc = wolf.getBase().getWidth() * multiplier;
-		final int sizeWolf = (int) calc;
-		graphics.drawImage(generateAnimal(user), 175, 20, sizeWolf, sizeWolf, null);
+		final BufferedImage wolfImage = generateAnimal(user);
+		graphics.drawImage(wolfImage, 95, 0, wolfImage.getWidth() - 10, wolfImage.getHeight() - 10,  null);
 
 		// Draw the name
 		graphics.setFont(new Font("Roboto Regular", Font.PLAIN, 18));
@@ -97,75 +96,77 @@ public class WolfProfileBuilder {
 
 	public static BufferedImage generateAnimal(IUser user) {
 		final WolfTemplate wolf = DataBase.wolfQuery(user);
-		BufferedImage bufferedImage = new BufferedImage(wolf.getBase().getWidth() * 4, wolf.getBase().getHeight() * 4, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bufferedImage = new BufferedImage(wolf.getBase().getWidth(), wolf.getBase().getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = bufferedImage.createGraphics();
 
-		final double calc = wolf.getBase().getWidth() * multiplier;
-		final int size = (int) calc;
+		final double calcW = wolf.getBase().getWidth() * multiplier;
+		final double calcH = wolf.getBase().getHeight() * multiplier;
+		final int width = (int) calcW;
+		final int height = (int) calcH;
 
 		// Draw the wolf base
 		graphics.drawImage(wolf.getBase(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		// Draw the wolf cosmetics
 		graphics.drawImage(wolf.getBody(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getEye(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getNose(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getShirt(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getNeck(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getTail(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getPaws(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.drawImage(wolf.getHat(),
 				0,
 				0,
-				size,
-				size,
+				width,
+				height,
 				null);
 
 		graphics.dispose();

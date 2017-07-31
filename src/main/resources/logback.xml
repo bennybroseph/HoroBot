@@ -14,7 +14,8 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>
-    <logger name="org.apache" level="NONE"/>
+    <logger name="org.apache" level="INFO"/>
     <logger name="com.sedmelluq.*" level="INFO"/>
-    <logger name="httpclient" level="NONE"/>
+    <logger name="httpclient" level="INFO"/>
+    <logger name="sx.blah.discord.Discord4J" level="TRACE"/>
 </configuration>

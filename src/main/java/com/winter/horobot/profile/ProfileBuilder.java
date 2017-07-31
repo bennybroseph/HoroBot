@@ -189,19 +189,19 @@ public class ProfileBuilder {
 
 		// Draw the wolf image
 		final int wolfX = (width / 2) + 50;
-		final int wolfY = (height / 2) + 60;
-		graphics.drawImage(template.getWolf(), wolfX, wolfY, template.getWolf().getWidth(), template.getWolf().getHeight(), null);
+		final int wolfY = (height / 2) + 50;
+		graphics.drawImage(template.getWolf(), wolfX, wolfY, 128, 128, null);
 
 		// Draw the wolf hunger
 		DataBase.insertWolf(user);
 		final WolfTemplate wolf = DataBase.wolfQuery(user);
 		final int hungerX = wolfX - 60;
-		final int hungerY = wolfY + 30;
+		final int hungerY = wolfY + 40;
 		graphics.setFont(new Font("Roboto Light", Font.PLAIN, 13));
 		graphics.drawString(wolf.getHunger() + "/" + wolf.getMaxHunger() + " Hunger", hungerX, hungerY);
 
 		// Draw the wolf level
-		final int wolfLevelY = wolfY + 70;
+		final int wolfLevelY = wolfY + 80;
 		graphics.setFont(new Font("Roboto Regular", Font.PLAIN, 18));
 		graphics.drawString("Level " + wolf.getLevel(), hungerX, wolfLevelY);
 

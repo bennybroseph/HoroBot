@@ -20,6 +20,13 @@ package com.winter.horobot.util;
 
 import com.winter.horobot.database.DataBase;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Locale;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 public class Localisation {
@@ -29,6 +36,10 @@ public class Localisation {
 	private static ResourceBundle esLang = ResourceBundle.getBundle("locale.es");
 	private static ResourceBundle ptLang = ResourceBundle.getBundle("locale.pt");
 	private static ResourceBundle hiLang = ResourceBundle.getBundle("locale.hi");
+	private static ResourceBundle frLang = ResourceBundle.getBundle("locale.fr");
+	private static ResourceBundle deLang = ResourceBundle.getBundle("locale.de", new UTF8Control());
+	private static ResourceBundle ruLang = ResourceBundle.getBundle("locale.ru", new UTF8Control());
+	private static ResourceBundle roLang = ResourceBundle.getBundle("locale.ro");
 
 	private static String checkLanguage(String guildID) {
 		return DataBase.guildQuery(guildID, "language");
@@ -51,6 +62,18 @@ public class Localisation {
 			case "hi":
 				updateGuildLanguage(guildID, "hi");
 				return true;
+			case "fr":
+				updateGuildLanguage(guildID, "fr");
+				return true;
+			case "de":
+				updateGuildLanguage(guildID, "de");
+				return true;
+			case "ru":
+				updateGuildLanguage(guildID, "ru");
+				return true;
+			case "ro":
+				updateGuildLanguage(guildID, "ro");
+				return true;
 		}
 		return false;
 	}
@@ -66,18 +89,39 @@ public class Localisation {
 			case "en":
 				if (enLang.containsKey(str))
 					return enLang.getString(str);
+				break;
 			case "nl":
 				if (nlLang.containsKey(str))
 					return nlLang.getString(str);
+				break;
 			case "es":
 				if (esLang.containsKey(str))
 					return esLang.getString(str);
+				break;
 			case "pt":
 				if (ptLang.containsKey(str))
 					return ptLang.getString(str);
+				break;
 			case "hi":
 				if (hiLang.containsKey(str))
 					return hiLang.getString(str);
+				break;
+			case "fr":
+				if (frLang.containsKey(str))
+					return frLang.getString(str);
+				break;
+			case "de":
+				if (deLang.containsKey(str))
+					return deLang.getString(str);
+				break;
+			case "ru":
+				if (ruLang.containsKey(str))
+					return ruLang.getString(str);
+				break;
+			case "ro":
+				if (roLang.containsKey(str))
+					return roLang.getString(str);
+				break;
 		}
 		return "Localisation error please report this error in the Discord server so it can be fixed as quickly as possible; https://discord.gg/MCUTSZz";
 	}

@@ -31,10 +31,10 @@ public class ClientManager {
 	
 	public static ClientManager createClient() {
 		String token;
-		if (Config.debug) {
-			token = Config.debugToken;
+		if (Config.DEBUG) {
+			token = Config.DEBUG_TOKEN;
 		} else {
-			token = Config.botToken;
+			token = Config.RELEASE_TOKEN;
 		}
 		ClientManager bot = null;
 		

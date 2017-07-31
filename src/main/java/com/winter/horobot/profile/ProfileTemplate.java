@@ -1,6 +1,10 @@
 package com.winter.horobot.profile;
 
+import com.winter.horobot.animals.Item;
 import com.winter.horobot.animals.wolf.WolfCosmetics;
+import com.winter.horobot.animals.wolf.WolfProfileBuilder;
+import com.winter.horobot.util.Utility;
+import sx.blah.discord.handle.obj.IUser;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,22 +17,28 @@ public class ProfileTemplate {
 	private final int xp;
 	private final int maxXp;
 	private final int foxCoins;
+	private final boolean notifications;
 	private BufferedImage background;
 	private BufferedImage template;
 	private BufferedImage wolf;
 	private BufferedImage lvlTemplate;
 
-	public ProfileTemplate(String name, String description, int level, int xp, int maxXp, int foxCoins, String background) {
-		this.name = name;
+	public ProfileTemplate(IUser user, String description, int level, int xp, int maxXp, int foxCoins, String background, boolean notifications) {
+		this.name = user.getName();
 		this.description = description;
 		this.level = level;
 		this.xp = xp;
 		this.maxXp = maxXp;
 		this.foxCoins = foxCoins;
+		this.notifications = notifications;
 		try {
-			this.background = ImageIO.read(getClass().getResourceAsStream(WolfCosmetics.backgrounds.get(background)));
+			try {
+				this.background = ImageIO.read(getClass().getResourceAsStream(Utility.getItemByName(background.toUpperCase()).getFile()));
+			} catch (NullPointerException e) {
+				this.background = ImageIO.read(getClass().getResourceAsStream("/wolf/bg/default-bg.png"));
+			}
 			this.template = ImageIO.read(getClass().getResourceAsStream("/profile/template.png"));
-			this.wolf = ImageIO.read(getClass().getResourceAsStream("/profile/wolf.png"));
+			this.wolf = WolfProfileBuilder.generateAnimal(user);
 			this.lvlTemplate = ImageIO.read(getClass().getResourceAsStream("/profile/lvl-template.png"));
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -58,6 +68,8 @@ public class ProfileTemplate {
 	public int getFoxCoins() {
 		return foxCoins;
 	}
+
+	public boolean getNotifications() { return notifications; }
 
 	public BufferedImage getBackground() {
 		return background;

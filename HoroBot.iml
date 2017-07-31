@@ -10,7 +10,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.github.austinv11:Discord4j:2.8.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.austinv11:Discord4j:4a8d96a" level="project" />
+    <orderEntry type="library" name="Maven: com.github.austinv11:Discord4J:2.8.4" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.24" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
@@ -39,6 +40,8 @@
     <orderEntry type="library" name="Maven: com.vdurmont:emoji-java:3.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.koloboke:koloboke-impl-common-jdk8:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.koloboke:koloboke-api-jdk8:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.TsundereBug:IAmAshamedToMakeThis:b3af4c7" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.1" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.16.1" level="project" />
@@ -56,6 +59,6 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: net.iharder:base64:2.3.9" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.groovy:groovy-jsr223:2.4.7" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.groovy:groovy:2.4.7" level="project" />
-    <orderEntry type="library" name="Maven: com.github.ArsenArsen:Open-Imaging:patch-1-c1b361ca44-1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.rtyley:animated-gif-lib-for-java:animated-gif-lib-1.2" level="project" />
   </component>
 </module>
