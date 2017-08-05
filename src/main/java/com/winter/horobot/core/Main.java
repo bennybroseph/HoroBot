@@ -212,8 +212,8 @@ public class Main {
 					cmd.event.getChannel().setTypingStatus(true);
 					try {
 						commands.get(cmd.invoke).action(cmd.args, cmd.beheaded, cmd.event);
-					} catch (RateLimitException | MissingPermissionsException de) {
-						throw de;
+					} catch (RateLimitException | MissingPermissionsException ignored) {
+						// ignored
 					} catch (Exception e) {
 						if (!Config.DEBUG) {
 							Message.sendMessageInChannel(cmd.event.getChannel(), "error");
