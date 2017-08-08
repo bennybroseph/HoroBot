@@ -24,4 +24,7 @@ public class ErrorHandler {
 		c.sendMessage(e.build());
 	}
 
+	// TODO: This must also notify the user that an error occurred, instead of doing it manually in every command
+	// TODO: It must also provide the correct usage of a command if it was used incorrectly
+
 }

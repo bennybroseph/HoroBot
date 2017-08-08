@@ -151,7 +151,8 @@ public class Commands implements IListener<MessageReceivedEvent> {
 						"prefix",
 						PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 						e -> {
-							MessageUtil.sendMessage(e.getChannel(), "prefixes", GuildUtil.getPrefixes(e.getGuild()).stream().collect(Collectors.joining(", ")));
+							System.out.println(GuildUtil.getPrefixes(e.getGuild()).size());
+							MessageUtil.sendMessage(e.getChannel(), "prefixes", Arrays.toString(GuildUtil.getPrefixes(e.getGuild()).toArray()));
 							return true;
 						}
 				), Arrays.asList(

@@ -25,7 +25,7 @@ public class Database {
 	public static boolean set(String sql, Object... params) {
 		try (
 				Connection con = poolingDataSource.getConnection();
-				PreparedStatement statement = setStatementParams(con.prepareStatement(sql), params)
+				PreparedStatement statement = setStatementParams(con, con.prepareStatement(sql), params)
 		) {
 			statement.executeUpdate();
 			return true;
@@ -45,18 +45,42 @@ public class Database {
 		HashMap<String, Object> results = new HashMap<>();
 		try (
 				Connection con = poolingDataSource.getConnection();
-				PreparedStatement statement = setStatementParams(con.prepareStatement(sql), params);
+				PreparedStatement statement = setStatementParams(con, con.prepareStatement(sql), params);
 				ResultSet set = statement.executeQuery()
 		) {
 			ResultSetMetaData md = set.getMetaData();
 			int columns = md.getColumnCount();
-			if (set.next())
-				for (int i = 1; i <= columns; i++)
-					results.put(md.getColumnName(i), set.getObject(i));
+			if (set.next()) {
+				for (int i = 1; i <= columns; i++) {
+					if (set.getObject(i) instanceof Array) {
+						results.put(md.getColumnName(i), set.getArray(i).getArray());
+					} else {
+						results.put(md.getColumnName(i), set.getObject(i));
+					}
+				}
+			}
 		} catch (SQLException e) {
 			LOGGER.error("Caught an SQL exception!", e);
 		}
 		return results;
+	}
+
+	/**
+	 * This method should not be used during normal operation
+	 * @param sql The sql to execute
+	 * @return True on success false on failure
+	 */
+	private static boolean executeUnsafe(String sql) {
+		try (
+				Connection con = poolingDataSource.getConnection();
+				Statement statement = con.createStatement()
+		) {
+			statement.executeUpdate(sql);
+			return true;
+		} catch (SQLException e) {
+			LOGGER.error("Caught an SQL exception!", e);
+		}
+		return false;
 	}
 
 	/**
@@ -65,7 +89,7 @@ public class Database {
 	 * @param params Array of parameters that need to be set
 	 * @throws SQLException Upon failing to set a parameter
 	 */
-	public static PreparedStatement setStatementParams(PreparedStatement statement, Object[] params) throws SQLException {
+	private static PreparedStatement setStatementParams(Connection con, PreparedStatement statement, Object[] params) throws SQLException {
 		for (int i = 0; i < params.length; i++) {
 			if (params[i] instanceof String)
 				statement.setString(i + 1, (String) params[i]);
@@ -77,6 +101,8 @@ public class Database {
 				statement.setLong(i + 1, (long) params[i]);
 			else if (params[i] instanceof Double)
 				statement.setDouble(i + 1, (double) params[i]);
+			else if (params[i] instanceof String[])
+				statement.setArray(i + 1, con.createArrayOf("text", (String[]) params[i]));
 		}
 		return statement;
 	}
@@ -99,7 +125,62 @@ public class Database {
 	 * @return true upon successful setup and false on failure
 	 */
 	public static boolean setup() {
-		// TODO: Create all schemas and tables that are used by the bot here
-		return true;
+		return (executeUnsafe("CREATE SCHEMA IF NOT EXISTS guilds;")) &&
+				(executeUnsafe("CREATE TABLE IF NOT EXISTS guilds.guild(" +
+				"id TEXT PRIMARY KEY NOT NULL," +
+				"language TEXT DEFAULT 'en'," +
+				"prefixes TEXT[10]," +
+				"autoroles TEXT[3]," +
+				"welcome TEXT DEFAULT 'none'," +
+				"role TEXT DEFAULT 'none'," +
+				"pm TEXT DEFAULT 'none'," +
+				"lvlup BOOLEAN DEFAULT true," +
+				"bpresentban BOOLEAN DEFAULT true," +
+				"bignore BOOLEAN DEFAULT false);")) &&
+
+				(executeUnsafe("CREATE SCHEMA IF NOT EXISTS wolves;")) &&
+				(executeUnsafe("CREATE TABLE IF NOT EXISTS wolves.wolf(" +
+				"id TEXT PRIMARY KEY NOT NULL," +
+				"name TEXT NOT NULL DEFAULT 'Wolf'," +
+				"level INTEGER NOT NULL DEFAULT 1," +
+				"hunger INTEGER NOT NULL DEFAULT 0," +
+				"maxHunger INTEGER NOT NULL DEFAULT 2," +
+				"fedTimes INTEGER NOT NULL DEFAULT 0," +
+				"background TEXT DEFAULT NULL," +
+				"hat TEXT DEFAULT NULL," +
+				"body TEXT DEFAULT NULL," +
+				"paws TEXT DEFAULT NULL," +
+				"tail TEXT DEFAULT NULL," +
+				"shirt TEXT DEFAULT NULL," +
+				"nose TEXT DEFAULT NULL," +
+				"eye TEXT DEFAULT NULL," +
+				"neck TEXT DEFAULT NULL);")) &&
+
+				(executeUnsafe("CREATE SCHEMA IF NOT EXISTS blacklists;")) &&
+				(executeUnsafe("CREATE TABLE IF NOT EXISTS blacklists.blacklist (" +
+				"id TEXT PRIMARY KEY NOT NULL," +
+				"userID TEXT NOT NULL);")) &&
+
+				(executeUnsafe("CREATE SCHEMA IF NOT EXISTS tags;")) &&
+				(executeUnsafe("CREATE TABLE IF NOT EXISTS tags.tag(" +
+				"id TEXT NOT NULL," +
+				"tag TEXT NOT NULL," +
+				"content TEXT NOT NULL," +
+				"PRIMARY KEY (id, tag));")) &&
+
+				(executeUnsafe("CREATE SCHEMA IF NOT EXISTS users;")) &&
+				(executeUnsafe("CREATE TABLE IF NOT EXISTS users.user(" +
+				"id TEXT PRIMARY KEY NOT NULL," +
+				"description TEXT NOT NULL DEFAULT 'I like trains'," +
+				"level INTEGER NOT NULL DEFAULT 1," +
+				"xp INTEGER NOT NULL DEFAULT 0," +
+				"maxXp INTEGER NOT NULL DEFAULT 300," +
+				"foxCoins INTEGER NOT NULL DEFAULT 0," +
+				"background TEXT NOT NULL DEFAULT 'NONE0'," +
+				"notifications BOOLEAN NOT NULL DEFAULT false);")) &&
+				(executeUnsafe("CREATE TABLE IF NOT EXISTS users.item(" +
+				"id TEXT NOT NULL," +
+				"item TEXT NOT NULL," +
+				"PRIMARY KEY (id, item));"));
 	}
 }

@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 public class GuildMeta implements IGuild {
 
 	private final IGuild guild;
-	private volatile Set<String> prefixes; // why volatile?
-	private volatile String language;
-	private volatile String welcome;
-	private volatile String pm;
-	private volatile long autorole;
-	private volatile boolean levelupNotifications;
-	private volatile boolean presentBan;
-	private volatile boolean botIgnore;
+	private Set<String> prefixes;
+	private Set<Long> autoroles;
+	private String language;
+	private String welcome;
+	private String pm;
+	private boolean levelupNotifications;
+	private boolean presentBan;
+	private boolean botIgnore;
 
 	/**
 	 * Constructor for guild metadata object
@@ -35,20 +35,18 @@ public class GuildMeta implements IGuild {
 	public GuildMeta(IGuild guild) {
 		this.guild = guild;
 		Map<String, Object> settings = Database.get("SELECT * FROM guilds.guild WHERE id=?", guild.getStringID());
-		this.prefixes = Arrays.stream(((String) settings.getOrDefault("prefixes", ".horo")).split(",")).collect(Collectors.toSet());
-		if(prefixes.isEmpty()) {
-			try {
-				addPrefix(".horo");
-			} catch (UpdateFailedException e) {
-				e.printStackTrace();
-			}
-		}
+		this.prefixes = Arrays.stream((String[]) settings.getOrDefault("prefixes", new String[]{})).collect(Collectors.toSet());
+
+		// TODO: This is quite hacky, dunno if there is a better way vvvvvvv
+		String[] roles = (String[]) settings.getOrDefault("autoroles", new String[]{});
+		Long[] roless = new Long[roles.length];
+		for (int i = 0; i < roles.length; i++)
+			roless[i] = Long.parseUnsignedLong(roles[i]);
+
+		this.autoroles = Arrays.stream(roless).collect(Collectors.toSet());
 		this.language = (String) settings.getOrDefault("language", "en");
 		this.welcome = (String) settings.getOrDefault("welcome", "none");
 		this.pm = (String) settings.getOrDefault("pm", "none");
-		String temp = (String) settings.getOrDefault("role", "none");
-		if (temp.equalsIgnoreCase("none")) this.autorole = 0L;
-		else this.autorole = Long.parseUnsignedLong(temp);
 		this.levelupNotifications = (boolean) settings.getOrDefault("lvlup", true);
 		this.presentBan = (boolean) settings.getOrDefault("bpresentban", true);
 		this.botIgnore = (boolean) settings.getOrDefault("bignore", false);
@@ -58,23 +56,31 @@ public class GuildMeta implements IGuild {
 		return prefixes;
 	}
 
-	public synchronized void addPrefix(String prefix) throws UpdateFailedException {
+	public void addPrefix(String prefix) throws UpdateFailedException {
+		Set<String> prefixes = this.getPrefixes();
+		if (prefixes.contains(prefix)) // Just to be sure
+			throw new UpdateFailedException("Duplicate prefix");
 		prefixes.add(prefix);
-		if (!Database.set("UPDATE guilds.guild SET prefix=? WHERE id=?", prefixes.stream().collect(Collectors.joining(",")), this.getStringID()))
+		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", (String[]) prefixes.toArray(), this.guild.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
+		this.prefixes = prefixes;
 	}
 
-	public synchronized void removePrefix(String prefix) throws UpdateFailedException {
+	public void removePrefix(String prefix) throws UpdateFailedException {
+		Set<String> prefixes = this.getPrefixes();
+		if (!prefixes.contains(prefix))
+			throw new UpdateFailedException("Prefix does not exist");
 		prefixes.remove(prefix);
-		if (!Database.set("UPDATE guilds.guild SET prefix=? WHERE id=?", prefixes.stream().collect(Collectors.joining(",")), this.getStringID()))
+		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(), this.guild.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
+		this.prefixes = prefixes;
 	}
 
 	public String getLanguage() {
 		return language;
 	}
 
-	public synchronized void setLanguage(String language) throws UpdateFailedException {
+	public void setLanguage(String language) throws UpdateFailedException {
 		if (!Database.set("UPDATE guilds.guild SET language=? WHERE id=?", language, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.language = language;
@@ -84,7 +90,7 @@ public class GuildMeta implements IGuild {
 		return welcome;
 	}
 
-	public synchronized void setWelcome(String welcome) throws UpdateFailedException {
+	public void setWelcome(String welcome) throws UpdateFailedException {
 		if (!Database.set("UPDATE guilds.guild SET welcome=? WHERE id=?", welcome, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.welcome = welcome;
@@ -94,27 +100,27 @@ public class GuildMeta implements IGuild {
 		return pm;
 	}
 
-	public synchronized void setPm(String pm) throws UpdateFailedException {
+	public void setPm(String pm) throws UpdateFailedException {
 		if (!Database.set("UPDATE guilds.guild SET pm=? WHERE id=?", pm, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.pm = pm;
 	}
 
-	public long getAutorole() {
-		return autorole;
+	public Set<Long> getAutorole() {
+		return autoroles;
 	}
 
-	public synchronized void setAutorole(long autorole) throws UpdateFailedException {
-		if (!Database.set("UPDATE guilds.guild SET role=? WHERE id=?", String.valueOf(autorole), this.getStringID()))
+	public void setAutorole(Set<Long> autoroles) throws UpdateFailedException {
+		if (!Database.set("UPDATE guilds.guild SET autoroles=? WHERE id=?", autoroles, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
-		this.autorole = autorole;
+		this.autoroles = autoroles;
 	}
 
 	public boolean isLevelupNotifications() {
 		return levelupNotifications;
 	}
 
-	public synchronized void setLevelupNotifications(boolean levelupNotifications) throws UpdateFailedException {
+	public void setLevelupNotifications(boolean levelupNotifications) throws UpdateFailedException {
 		if (!Database.set("UPDATE guilds.guild SET lvlup=? WHERE id=?", levelupNotifications, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.levelupNotifications = levelupNotifications;
@@ -124,7 +130,7 @@ public class GuildMeta implements IGuild {
 		return presentBan;
 	}
 
-	public synchronized void setPresentBan(boolean presentBan) throws UpdateFailedException {
+	public void setPresentBan(boolean presentBan) throws UpdateFailedException {
 		if (!Database.set("UPDATE guilds.guild SET bpresentban=? WHERE id=?", presentBan, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.presentBan = presentBan;
@@ -134,7 +140,7 @@ public class GuildMeta implements IGuild {
 		return botIgnore;
 	}
 
-	public synchronized void setBotIgnore(boolean botIgnore) throws UpdateFailedException {
+	public void setBotIgnore(boolean botIgnore) throws UpdateFailedException {
 		if (!Database.set("UPDATE guilds.guild SET bignore=? WHERE id=?", botIgnore, this.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.botIgnore = botIgnore;
