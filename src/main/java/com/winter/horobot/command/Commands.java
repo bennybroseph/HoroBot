@@ -163,8 +163,8 @@ public class Commands implements IListener<MessageReceivedEvent> {
 									try {
 										HoroCache.get(e.getGuild()).addPrefix(MessageUtil.args(e.getMessage()).substring("prefix add ".length()));
 										MessageUtil.sendMessage(e.getChannel(), "added-prefix");
-									} catch (UpdateFailedException e1) {
-										ErrorHandler.log(e1, "Trying to add prefix for Guild " + e.getGuild().getName() + ": " + MessageUtil.args(e.getMessage()));
+									} catch (UpdateFailedException ex) {
+										ErrorHandler.log(ex, e.getChannel());
 									}
 									return true;
 								}
@@ -176,8 +176,8 @@ public class Commands implements IListener<MessageReceivedEvent> {
 									try {
 										HoroCache.get(e.getGuild()).removePrefix(MessageUtil.args(e.getMessage()).substring("prefix remove ".length()));
 										MessageUtil.sendMessage(e.getChannel(), "removed-prefix");
-									} catch (UpdateFailedException e1) {
-										ErrorHandler.log(e1, "Trying to remove prefix for Guild " + e.getGuild().getName() + ": " + MessageUtil.args(e.getMessage()));
+									} catch (UpdateFailedException ex) {
+										ErrorHandler.log(ex, e.getChannel());
 									}
 									return true;
 								}
@@ -230,7 +230,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 				});
 			}
 		} catch (Exception ex) {
-			ErrorHandler.log(ex, "Guild: " + e.getGuild().getName());
+			ErrorHandler.log(ex, e.getChannel());
 			e.getChannel().setTypingStatus(false);
 		}
 	}

@@ -51,17 +51,17 @@ public class GuildMeta implements IGuild {
 
 	public void addPrefix(String prefix) throws UpdateFailedException {
 		Set<String> prefixes = this.getPrefixes();
-		if (prefixes.contains(prefix)) // Just to be sure
+		if (prefixes.contains(prefix)) // To save a db call when the prefix already exists
 			throw new UpdateFailedException("Duplicate prefix");
 		prefixes.add(prefix);
-		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", (String[]) prefixes.toArray(), this.guild.getStringID()))
+		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(), this.guild.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.prefixes = prefixes;
 	}
 
 	public void removePrefix(String prefix) throws UpdateFailedException {
 		Set<String> prefixes = this.getPrefixes();
-		if (!prefixes.contains(prefix))
+		if (!prefixes.contains(prefix)) // To save a db call when the prefix doesn't exist
 			throw new UpdateFailedException("Prefix does not exist");
 		prefixes.remove(prefix);
 		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(), this.guild.getStringID()))
@@ -345,9 +345,7 @@ public class GuildMeta implements IGuild {
 	}
 
 	@Override
-	public void edit(String s, IRegion iRegion, VerificationLevel verificationLevel, Image image, IVoiceChannel iVoiceChannel, int i) {
-		guild.edit(s, iRegion, verificationLevel, image, iVoiceChannel, i);
-	}
+	public void edit(String s, IRegion iRegion, VerificationLevel verificationLevel, Image image, IVoiceChannel iVoiceChannel, int i) { guild.edit(s, iRegion, verificationLevel, image, iVoiceChannel, i); }
 
 	@Override
 	public void changeName(String s) {
@@ -380,19 +378,13 @@ public class GuildMeta implements IGuild {
 	}
 
 	@Override
-	public void deleteGuild() {
-		guild.deleteGuild();
-	}
+	public void deleteGuild() { guild.deleteGuild(); }
 
 	@Override
-	public void leaveGuild() {
-		guild.leaveGuild();
-	}
+	public void leaveGuild() { guild.leaveGuild(); }
 
 	@Override
-	public void leave() {
-		guild.leave();
-	}
+	public void leave() { guild.leave(); }
 
 	@Override
 	public IChannel createChannel(String s) {
@@ -400,9 +392,7 @@ public class GuildMeta implements IGuild {
 	}
 
 	@Override
-	public IVoiceChannel createVoiceChannel(String s) {
-		return guild.createVoiceChannel(s);
-	}
+	public IVoiceChannel createVoiceChannel(String s) { return guild.createVoiceChannel(s); }
 
 	@Override
 	public IRegion getRegion() {
@@ -425,9 +415,7 @@ public class GuildMeta implements IGuild {
 	}
 
 	@Override
-	public List<IInvite> getInvites() {
-		return guild.getInvites();
-	}
+	public List<IInvite> getInvites() { return guild.getInvites(); }
 
 	@Override
 	public List<IExtendedInvite> getExtendedInvites() {

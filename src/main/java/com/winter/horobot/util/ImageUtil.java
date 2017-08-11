@@ -28,7 +28,7 @@ public class ImageUtil {
 		con.connect();
 		InputStream i = con.getInputStream();
 		BufferedImage b = ImageIO.read(i);
-		i.close(); // SMH WINTERY!!!
+		i.close();
 		return b;
 	}
 

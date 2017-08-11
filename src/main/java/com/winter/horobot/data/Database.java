@@ -105,6 +105,8 @@ public class Database {
 				statement.setArray(i + 1, con.createArrayOf("text", (String[]) params[i]));
 			else if (params[i] instanceof Long[])
 				statement.setArray(i + 1, con.createArrayOf("bigint", (Long[]) params[i]));
+			else if (params[i] instanceof Array)
+				statement.setArray(i + 1, (Array) params[i]);
 		}
 		return statement;
 	}
