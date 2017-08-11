@@ -103,6 +103,8 @@ public class Database {
 				statement.setDouble(i + 1, (double) params[i]);
 			else if (params[i] instanceof String[])
 				statement.setArray(i + 1, con.createArrayOf("text", (String[]) params[i]));
+			else if (params[i] instanceof Long[])
+				statement.setArray(i + 1, con.createArrayOf("bigint", (Long[]) params[i]));
 		}
 		return statement;
 	}
@@ -129,8 +131,8 @@ public class Database {
 				(executeUnsafe("CREATE TABLE IF NOT EXISTS guilds.guild(" +
 				"id TEXT PRIMARY KEY NOT NULL," +
 				"language TEXT DEFAULT 'en'," +
-				"prefixes TEXT[10]," +
-				"autoroles TEXT[3]," +
+				"prefixes TEXT[]," +
+				"autoroles BIGINT[]," +
 				"welcome TEXT DEFAULT 'none'," +
 				"role TEXT DEFAULT 'none'," +
 				"pm TEXT DEFAULT 'none'," +

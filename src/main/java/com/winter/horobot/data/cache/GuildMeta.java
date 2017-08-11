@@ -36,14 +36,7 @@ public class GuildMeta implements IGuild {
 		this.guild = guild;
 		Map<String, Object> settings = Database.get("SELECT * FROM guilds.guild WHERE id=?", guild.getStringID());
 		this.prefixes = Arrays.stream((String[]) settings.getOrDefault("prefixes", new String[]{})).collect(Collectors.toSet());
-
-		// TODO: This is quite hacky, dunno if there is a better way vvvvvvv
-		String[] roles = (String[]) settings.getOrDefault("autoroles", new String[]{});
-		Long[] roless = new Long[roles.length];
-		for (int i = 0; i < roles.length; i++)
-			roless[i] = Long.parseUnsignedLong(roles[i]);
-
-		this.autoroles = Arrays.stream(roless).collect(Collectors.toSet());
+		this.autoroles = Arrays.stream((Long[]) settings.getOrDefault("autoroles", new Long[]{})).collect(Collectors.toSet());
 		this.language = (String) settings.getOrDefault("language", "en");
 		this.welcome = (String) settings.getOrDefault("welcome", "none");
 		this.pm = (String) settings.getOrDefault("pm", "none");

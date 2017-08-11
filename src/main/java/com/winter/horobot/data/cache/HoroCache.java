@@ -20,7 +20,7 @@ public class HoroCache {
 	 */
 	public static GuildMeta get(IGuild guild) {
 		if (!guildCache.containsKey(guild)) {
-			Database.set("INSERT INTO guilds.guild (id, language, prefixes, autoroles, welcome) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;", guild.getStringID(), "en", new String[]{}, new String[]{}, "none");
+			Database.set("INSERT INTO guilds.guild (id, language, prefixes, autoroles, welcome) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;", guild.getStringID(), "en", new String[]{}, new Long[]{}, "none");
 			guildCache.put(guild, new GuildMeta(guild));
 		}
 		return guildCache.get(guild);
