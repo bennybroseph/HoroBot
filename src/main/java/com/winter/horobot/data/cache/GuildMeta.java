@@ -52,9 +52,9 @@ public class GuildMeta implements IGuild {
 	public void addPrefix(String prefix) throws UpdateFailedException {
 		Set<String> prefixes = this.getPrefixes();
 		if (prefixes.contains(prefix)) // To save a db call when the prefix already exists
-			throw new UpdateFailedException("Duplicate prefix");
+			throw new UpdateFailedException("Prefix already exists! The current prefixes are `" + Arrays.toString(prefixes.toArray()) + "`");
 		prefixes.add(prefix);
-		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(), this.guild.getStringID()))
+		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(new String[]{}), guild.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.prefixes = prefixes;
 	}
@@ -62,9 +62,9 @@ public class GuildMeta implements IGuild {
 	public void removePrefix(String prefix) throws UpdateFailedException {
 		Set<String> prefixes = this.getPrefixes();
 		if (!prefixes.contains(prefix)) // To save a db call when the prefix doesn't exist
-			throw new UpdateFailedException("Prefix does not exist");
+			throw new UpdateFailedException("Prefix does not exist! The current prefixes are `" + Arrays.toString(prefixes.toArray()) + "`");
 		prefixes.remove(prefix);
-		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(), this.guild.getStringID()))
+		if (!Database.set("UPDATE guilds.guild SET prefixes=? WHERE id=?", prefixes.toArray(new String[]{}), guild.getStringID()))
 			throw new UpdateFailedException("Failed to update guild metadata");
 		this.prefixes = prefixes;
 	}
