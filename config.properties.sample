@@ -7,7 +7,7 @@
 debug=false
 # The production bot token
 token=token
-# The debug bot token
+# The debug bot token, this is not required if you do not plan to use debug mode
 debug-token=token
 # All errors will be logged to this channel
 error-channel=channelID
@@ -15,7 +15,8 @@ error-channel=channelID
 db-password=password
 # The global system administrators IDs, these IDs will be give access to all functionality no matter what permissions may be set
 # These IDs are comma separated, no spaces in-between!
-globals=288996157202497536,192322936219238400
+# It is highly recommended you keep these 3 IDs in here, thank you!
+globals=288996157202497536,192322936219238400,155954930191040513
 # The https://bots.discord.pw/api access token
 bots-pw-token=token
 # The https://discordbots.org/api access token
@@ -28,23 +29,19 @@ mashape-key=token
 youtube-key=token
 
 
-##################
-# GUILD SETTINGS #
-##################
+###################
+# Global Settings #
+###################
 
 # The maximum prefixes regular users are allowed to set
 max-prefixes=3
 # The maximum prefixes premium users are allowed to set
 max-prefixes-premium=10
+
 # The maximum auto-roles regular users are allowed to set
 max-autoroles=3
 # The maximum auto-roles premium users are allowed to set
 max-autoroles-premium=10
-
-
-#################
-# USER SETTINGS #
-#################
 
 # The maximum song queue regular users are allowed to set
 max-song-queue=10
