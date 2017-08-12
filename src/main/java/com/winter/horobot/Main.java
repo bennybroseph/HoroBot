@@ -85,6 +85,12 @@ public class Main {
 		MAL_CREDENTIALS("mal-credentials"),
 		MASHAPE_KEY("mashape-key"),
 		YOUTUBE_KEY("youtube-key"),
+		MAX_PREFIXES("max-prefixes"),
+		MAX_PREFIXES_PREMIUM("max-prefixes-premium"),
+		MAX_AUTOROLES("max-autoroles"),
+		MAX_AUTOROLES_PREMIUM("max-autoroles-premium"),
+		MAX_SONG_QUEUE("max-song-queue"),
+		MAX_SONG_QUEUE_PREMIUM("max-song-queue-premium"),
 		;
 
 		private final String name;
