@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class Commands implements IListener<MessageReceivedEvent> {
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(Commands.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Commands.class);
 
 	enum Category {
 		ADMIN("admin"),
@@ -47,8 +47,8 @@ public class Commands implements IListener<MessageReceivedEvent> {
 
 	}
 
-	public static final Map<Category, List<Node<Command>>> COMMAND_MAP = new EnumMap<>(Category.class);
-	public static final List<Node<Command>> COMMANDS = new ArrayList<>();
+	private static final Map<Category, List<Node<Command>>> COMMAND_MAP = new EnumMap<>(Category.class);
+	private static final List<Node<Command>> COMMANDS = new ArrayList<>();
 
 	static {
 		COMMAND_MAP.put(Category.DEV, new ArrayList<>(Arrays.asList(
@@ -151,7 +151,6 @@ public class Commands implements IListener<MessageReceivedEvent> {
 						"prefix",
 						PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 						e -> {
-							System.out.println(GuildUtil.getPrefixes(e.getGuild()).size());
 							MessageUtil.sendMessage(e.getChannel(), "prefixes", Arrays.toString(GuildUtil.getPrefixes(e.getGuild()).toArray()));
 							return true;
 						}

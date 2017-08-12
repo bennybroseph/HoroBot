@@ -26,7 +26,6 @@ public class Cooldowns {
 	 * @return The remaining time for a cool-down
 	 */
 	public static long getRemaining(String bucket, IUser user) {
-		HashMap<String, Long> bket = COOLDOWNS.computeIfAbsent(bucket, d-> new HashMap<>());
 		return getCooldownEndTime(bucket, user) - System.currentTimeMillis();
 	}
 
@@ -36,7 +35,7 @@ public class Cooldowns {
 	 * @param user The user to get the bucket for
 	 * @return The end time in system time
 	 */
-	public static long getCooldownEndTime(String bucket, IUser user) {
+	private static long getCooldownEndTime(String bucket, IUser user) {
 		HashMap<String, Long> bket = COOLDOWNS.computeIfAbsent(bucket, d -> new HashMap<>());
 		return bket.getOrDefault(user.getStringID(), 0L);
 	}

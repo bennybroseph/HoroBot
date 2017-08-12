@@ -15,7 +15,7 @@ public class Localisation {
 	 */
 	private static ResourceBundle enLang = ResourceBundle.getBundle("locale.en");
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(Localisation.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Localisation.class);
 
 	/**
 	 * Check a guilds language
@@ -61,8 +61,9 @@ public class Localisation {
 			case "ro":
 				updateGuildLanguage(guild, "ro");
 				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 
 	/**
@@ -87,6 +88,8 @@ public class Localisation {
 			case "en":
 				if (enLang.containsKey(messageKey))
 					return String.format(enLang.getString(messageKey), params);
+				break;
+			default:
 				break;
 		}
 		LOGGER.error("Missing message for key '" + messageKey + "' in translation '" + lang + "'");

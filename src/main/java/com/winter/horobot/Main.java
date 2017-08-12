@@ -20,7 +20,7 @@ public class Main {
 	private static IDiscordClient client = null;
 
 	/**
-	 *
+	 * Main method, guh!
 	 * @param args Args taken in from the run parameters
 	 * @throws IOException Upon failure to read the config
 	 */
@@ -87,11 +87,16 @@ public class Main {
 		YOUTUBE_KEY("youtube-key"),
 		;
 
+		private final String name;
+
+		/**
+		 * Get a config value for a key
+		 * @param key The config key to get
+		 * @return The config value for the given key
+		 */
 		public static ConfigValue from(String key) {
 			return Arrays.stream(ConfigValue.values()).filter(v -> v.getName().equals(key)).findFirst().orElseThrow(() -> new IllegalArgumentException("Not a config value!"));
 		}
-
-		private final String name;
 
 		ConfigValue(String name) {
 			this.name = name;
@@ -101,5 +106,4 @@ public class Main {
 			return name;
 		}
 	}
-
 }

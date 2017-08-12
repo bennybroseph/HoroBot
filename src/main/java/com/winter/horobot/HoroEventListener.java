@@ -9,9 +9,8 @@ public class HoroEventListener {
 
 	@EventSubscriber
 	public void onGuildCreated(GuildCreateEvent e) {
-		if (e.getGuild() != null) {
-			GuildMeta guild = HoroCache.get(e.getGuild());
+		if (e.getClient().isReady() && e.getGuild() != null) {
+			GuildMeta g = HoroCache.get(e.getGuild());
 		}
-		// TODO: Do stuff I guess, you need to make this into a custom listener thing too
 	}
 }
