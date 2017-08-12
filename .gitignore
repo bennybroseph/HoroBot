@@ -59,3 +59,4 @@ src/main/resources/config.properties
 .idea/workspace.xml
 target/
 modules/
+/config.properties

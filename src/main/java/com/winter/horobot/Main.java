@@ -34,7 +34,7 @@ public class Main {
 				System.exit(1);
 			}
 		} else {
-			configProperties = Main.class.getResourceAsStream("/config.properties");
+			configProperties = new FileInputStream("config.properties");
 		}
 		Properties p = new Properties();
 		p.load(configProperties);
