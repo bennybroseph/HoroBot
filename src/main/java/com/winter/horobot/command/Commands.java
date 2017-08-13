@@ -96,31 +96,30 @@ public class Commands implements IListener<MessageReceivedEvent> {
 	 */
 	@Override
 	public void handle(MessageReceivedEvent e) {
-		THREAD_POOL.submit(() -> {
-			try {
-				if (GuildUtil.getPrefixes(e.getGuild()).stream().anyMatch(e.getMessage().getContent()::startsWith)) {
-					String lookingFor = MessageUtil.args(e.getMessage());
-					for (Node<Command> n : COMMANDS) {
-						Node<Command> gotten = n.traverseThis(node -> node.getData().getAliases().stream().map(s -> {
-							if (node.getParent() != null) {
-								return node.getParent().compileTopDown(Command::getName, (s1, s2) -> s1 + " " + s2) + " " + s;
-							} else {
-								return s;
-							}
-						}).collect(Collectors.toSet()), lookingFor, (t, m) -> m.startsWith(t + " ") || m.endsWith(t), false);
-						if (gotten != null) {
-							LOGGER.debug(String.format("Found `%s`", gotten.getData().getName()));
-							e.getChannel().setTypingStatus(true);
-							gotten.getData().call(e);
-							e.getChannel().setTypingStatus(false);
-							break;
+		try {
+			Option<String> o = GuildUtil.getPrefixes(e.getGuild()).stream().findAny(e.getMessage().getContent()::startsWith);
+			if (o.isPresent()) {
+				String lookingFor = Arrays.stream(e.getMessage().getContent().substring(o.get().length()).split("\\s+")).collect(Collectors.joining(" "));
+				for (Node<Command> n : COMMANDS) {
+					Node<Command> gotten = n.traverseThis(node -> node.getData().getAliases().stream().map(s -> {
+						if (node.getParent() != null) {
+							return node.getParent().compileTopDown(Command::getName, (s1, s2) -> s1 + " " + s2) + " " + s;
+						} else {
+							return s;
 						}
+					}).collect(Collectors.toSet()), lookingFor, (t, m) -> m.startsWith(t + " ") || m.endsWith(t), false);
+					if (gotten != null) {
+						LOGGER.debug(String.format("Found `%s`", gotten.getData().getName()));
+						e.getChannel().setTypingStatus(true);
+						gotten.getData().call(e);
+						e.getChannel().setTypingStatus(false);
+						break;
 					}
 				}
-			} catch (Exception ex) {
-				ErrorHandler.log(ex, e.getChannel());
-				e.getChannel().setTypingStatus(false);
 			}
-		});
+		} catch (Exception ex) {
+			ErrorHandler.log(ex, e.getChannel());
+			e.getChannel().setTypingStatus(false);
+		}
 	}
 }
