@@ -16,7 +16,7 @@ public class StatusUtil {
 
 	public static boolean ping(MessageReceivedEvent e) {
 		long gatewayPing = e.getClient().getOurUser().getShard().getResponseTime();
-		long messageSent = e.getMessage().getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1000;
+		long messageSent = e.getMessage().getTimestamp().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 		LOGGER.debug("Message sent at `" + messageSent + "`...");
 		long beforeSend = System.currentTimeMillis();
 		IMessage m = e.getChannel().sendMessage(Localisation.of(e.getGuild(), "receive-latency", (beforeSend - messageSent)));

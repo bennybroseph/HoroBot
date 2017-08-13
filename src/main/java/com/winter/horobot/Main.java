@@ -41,9 +41,9 @@ public class Main {
 		p.keySet().forEach(k -> config.put(ConfigValue.from(k.toString()), p.getProperty(k.toString())));
 
 		ClientBuilder b = new ClientBuilder();
-		if(config.get(ConfigValue.DEBUG).equals("false")) {
+		if(config.get(ConfigValue.DEBUG).equalsIgnoreCase("false")) {
 			b.withToken(config.get(ConfigValue.TOKEN));
-		} else if (config.get(ConfigValue.DEBUG).equals("true")) {
+		} else if (config.get(ConfigValue.DEBUG).equalsIgnoreCase("true")) {
 			b.withToken(config.get(ConfigValue.DEBUG_TOKEN));
 		} else {
 			LOGGER.error("Invalid debug value, it must be 'true' or 'false'");

@@ -1,6 +1,8 @@
 package com.winter.horobot.data.cache;
 
 import com.winter.horobot.data.Database;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 
@@ -9,6 +11,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 public class HoroCache {
+
+	public static final Logger LOGGER = LoggerFactory.getLogger(HoroCache.class);
 
 	private static Map<IGuild, GuildMeta> guildCache = Collections.synchronizedMap(new WeakHashMap<>());
 	private static Map<IUser, UserMeta> userCache = Collections.synchronizedMap(new WeakHashMap<>());
@@ -20,8 +24,10 @@ public class HoroCache {
 	 */
 	public static GuildMeta get(IGuild guild) {
 		if (!guildCache.containsKey(guild)) {
+			LOGGER.debug("Trying to put user " + guild.getName() + " " + guild.getStringID() + " in the guild cache...");
 			Database.set("INSERT INTO guilds.guild (id, language, prefixes, autoroles, welcome) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;", guild.getStringID(), "en", new String[]{}, new Long[]{}, "none");
 			guildCache.put(guild, new GuildMeta(guild));
+			LOGGER.debug("Put guild " + guild.getName() + " " + guild.getStringID() + " in the guild cache");
 		}
 		return guildCache.get(guild);
 	}
@@ -33,8 +39,10 @@ public class HoroCache {
 	 */
 	public static UserMeta get(IUser user) {
 		if (!userCache.containsKey(user)) {
+			LOGGER.debug("Trying to put user " + user.getName() + " " + user.getStringID() + " in the user cache...");
 			Database.set("INSERT INTO users.user (id) VALUES (?) ON CONFLICT DO NOTHING;", user.getStringID());
 			userCache.put(user, new UserMeta(user));
+			LOGGER.debug("Put guild " + user.getName() + " " + user.getStringID() + " in the user cache");
 		}
 		return userCache.get(user);
 	}
