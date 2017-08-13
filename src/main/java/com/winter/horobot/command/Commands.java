@@ -13,7 +13,6 @@ import com.winter.horobot.data.Node;
 import com.winter.horobot.exceptions.ErrorHandler;
 import com.winter.horobot.util.ColorUtil;
 import com.winter.horobot.util.GuildUtil;
-import com.winter.horobot.util.MessageUtil;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +22,11 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Commands implements IListener<MessageReceivedEvent> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Commands.class);
-
-	private final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
 	enum Category {
 		ADMIN("admin"),
@@ -64,12 +59,11 @@ public class Commands implements IListener<MessageReceivedEvent> {
 	}
 
 	/**
-	 * Sends the help lul
-	 *
+	 * Sends the help
 	 * @param e The event that triggered it
 	 * @return True on success, false on failure
 	 */
-	public static boolean sendHelp(MessageReceivedEvent e) { // please im being forced to do this please
+	public static boolean sendHelp(MessageReceivedEvent e) {
 		try {
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.withColor(ColorUtil.withinTwoHues(0.1f, 0.9f));
@@ -91,13 +85,12 @@ public class Commands implements IListener<MessageReceivedEvent> {
 
 	/**
 	 * Handles MessageReceivedEvent and processes it
-	 *
 	 * @param e The event
 	 */
 	@Override
 	public void handle(MessageReceivedEvent e) {
 		try {
-			Option<String> o = GuildUtil.getPrefixes(e.getGuild()).stream().findAny(e.getMessage().getContent()::startsWith);
+			Optional<String> o = GuildUtil.getPrefixes(e.getGuild()).stream().findFirst();
 			if (o.isPresent()) {
 				String lookingFor = Arrays.stream(e.getMessage().getContent().substring(o.get().length()).split("\\s+")).collect(Collectors.joining(" "));
 				for (Node<Command> n : COMMANDS) {
