@@ -14,8 +14,8 @@ public class HoroCache {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(HoroCache.class);
 
-	private static Map<IGuild, GuildMeta> guildCache = Collections.synchronizedMap(new WeakHashMap<>());
-	private static Map<IUser, UserMeta> userCache = Collections.synchronizedMap(new WeakHashMap<>());
+	private static final Map<IGuild, GuildMeta> GUILD_CACHE = Collections.synchronizedMap(new WeakHashMap<>());
+	private static final Map<IUser, UserMeta> USER_CACHE = Collections.synchronizedMap(new WeakHashMap<>());
 
 	/**
 	 * Get a guild from the cache, if the guild is not already in the cache the guild will be put into it
@@ -23,13 +23,15 @@ public class HoroCache {
 	 * @return The guild meta for the guild implementation
 	 */
 	public static GuildMeta get(IGuild guild) {
-		if (!guildCache.containsKey(guild)) {
-			LOGGER.debug("Trying to put guild " + guild.getName() + " " + guild.getStringID() + " in the guild cache...");
-			Database.set("INSERT INTO guilds.guild (id, language, prefixes, autoroles, welcome) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;", guild.getStringID(), "en", new String[]{}, new Long[]{}, "none");
-			guildCache.put(guild, new GuildMeta(guild));
-			LOGGER.debug("Put guild " + guild.getName() + " " + guild.getStringID() + " in the guild cache");
+		synchronized (GUILD_CACHE) {
+			if (!GUILD_CACHE.containsKey(guild)) {
+				LOGGER.debug("Trying to put user " + guild.getName() + " " + guild.getStringID() + " in the guild cache...");
+				Database.set("INSERT INTO guilds.guild (id, language, prefixes, autoroles, welcome) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;", guild.getStringID(), "en", new String[]{}, new Long[]{}, "none");
+				GUILD_CACHE.put(guild, new GuildMeta(guild));
+				LOGGER.debug("Put guild " + guild.getName() + " " + guild.getStringID() + " in the guild cache");
+			}
+			return GUILD_CACHE.get(guild);
 		}
-		return guildCache.get(guild);
 	}
 
 	/**
@@ -38,13 +40,15 @@ public class HoroCache {
 	 * @return The user meta for the user implementation
 	 */
 	public static UserMeta get(IUser user) {
-		if (!userCache.containsKey(user)) {
-			LOGGER.debug("Trying to put user " + user.getName() + " " + user.getStringID() + " in the user cache...");
-			Database.set("INSERT INTO users.user (id) VALUES (?) ON CONFLICT DO NOTHING;", user.getStringID());
-			userCache.put(user, new UserMeta(user));
-			LOGGER.debug("Put guild " + user.getName() + " " + user.getStringID() + " in the user cache");
+		synchronized (USER_CACHE) {
+			if (!USER_CACHE.containsKey(user)) {
+				LOGGER.debug("Trying to put user " + user.getName() + " " + user.getStringID() + " in the user cache...");
+				Database.set("INSERT INTO users.user (id) VALUES (?) ON CONFLICT DO NOTHING;", user.getStringID());
+				USER_CACHE.put(user, new UserMeta(user));
+				LOGGER.debug("Put guild " + user.getName() + " " + user.getStringID() + " in the user cache");
+			}
+			return USER_CACHE.get(user);
 		}
-		return userCache.get(user);
 	}
 
 	/**
@@ -52,12 +56,18 @@ public class HoroCache {
 	 * @return The guild cache
 	 */
 	public static Map<IGuild, GuildMeta> getGuildCache() {
-		return guildCache;
+		synchronized (GUILD_CACHE) {
+			return GUILD_CACHE;
+		}
 	}
 
 	/**
 	 * Get the user cache
 	 * @return The user cache
 	 */
-	public static Map<IUser, UserMeta> getUserCache() { return userCache; }
+	public static Map<IUser, UserMeta> getUserCache() {
+		synchronized (USER_CACHE) {
+			return USER_CACHE;
+		}
+	}
 }

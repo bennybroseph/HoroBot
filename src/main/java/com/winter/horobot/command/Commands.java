@@ -1,13 +1,19 @@
 package com.winter.horobot.command;
 
-import com.winter.horobot.command.impl.developer.*;
-import com.winter.horobot.command.impl.status.*;
-import com.winter.horobot.command.impl.fun.*;
-import com.winter.horobot.command.impl.admin.*;
-import com.winter.horobot.data.locale.Localisation;
+import com.winter.horobot.command.impl.admin.CommandBan;
+import com.winter.horobot.command.impl.admin.CommandKick;
+import com.winter.horobot.command.impl.admin.CommandPrefix;
+import com.winter.horobot.command.impl.developer.CommandSet;
+import com.winter.horobot.command.impl.fun.CommandHue;
+import com.winter.horobot.command.impl.fun.CommandKona;
+import com.winter.horobot.command.impl.status.CommandHelp;
+import com.winter.horobot.command.impl.status.CommandHi;
+import com.winter.horobot.command.impl.status.CommandPing;
 import com.winter.horobot.data.Node;
+import com.winter.horobot.data.locale.Localisation;
 import com.winter.horobot.exceptions.ErrorHandler;
-import com.winter.horobot.util.*;
+import com.winter.horobot.util.GuildUtil;
+import com.winter.horobot.util.MessageUtil;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +27,15 @@ import sx.blah.discord.util.EmbedBuilder;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Commands implements IListener<MessageReceivedEvent> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Commands.class);
+
+	private final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
 	enum Category {
 		ADMIN("admin"),
@@ -62,7 +72,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 	 * @param e The event that triggered it
 	 * @return True on success, false on failure
 	 */
-	public static boolean sendHelp(MessageReceivedEvent e) {
+	public static boolean sendHelp(MessageReceivedEvent e) { // please im being forced to do this please
 		try {
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.withColor(ColorUtil.withinTwoHues(0.1f, 0.9f));
@@ -88,28 +98,30 @@ public class Commands implements IListener<MessageReceivedEvent> {
 	 */
 	@Override
 	public void handle(MessageReceivedEvent e) {
-		try {
-			if (GuildUtil.getPrefixes(e.getGuild()).stream().anyMatch(e.getMessage().getContent()::startsWith)) {
-				String lookingFor = MessageUtil.args(e.getMessage());
-				COMMANDS.forEach(n -> {
-					Node<Command> gotten = n.traverseThis(node -> node.getData().getAliases().stream().map(s -> {
-						if (node.getParent() != null) {
-							return node.getParent().compileTopDown(Command::getName, (s1, s2) -> s1 + " " + s2) + " " + s;
-						} else {
-							return s;
+		THREAD_POOL.submit(() -> {
+			try {
+				if (GuildUtil.getPrefixes(e.getGuild()).stream().anyMatch(e.getMessage().getContent()::startsWith)) {
+					String lookingFor = MessageUtil.args(e.getMessage());
+					COMMANDS.forEach(n -> {
+						Node<Command> gotten = n.traverseThis(node -> node.getData().getAliases().stream().map(s -> {
+							if (node.getParent() != null) {
+								return node.getParent().compileTopDown(Command::getName, (s1, s2) -> s1 + " " + s2) + " " + s;
+							} else {
+								return s;
+							}
+						}).collect(Collectors.toSet()), lookingFor, (t, m) -> m.startsWith(t + " ") || m.endsWith(t), false);
+						if (gotten != null) {
+							LOGGER.debug(String.format("Found `%s`", gotten.getData().getName()));
+							e.getChannel().setTypingStatus(true);
+							gotten.getData().call(e);
+							e.getChannel().setTypingStatus(false);
 						}
-					}).collect(Collectors.toSet()), lookingFor, (t, m) -> m.startsWith(t + " ") || m.endsWith(t), false);
-					if (gotten != null) {
-						LOGGER.debug(String.format("Found `%s`", gotten.getData().getName()));
-						e.getChannel().setTypingStatus(true);
-						gotten.getData().call(e);
-						e.getChannel().setTypingStatus(false);
-					}
-				});
+					});
+				}
+			} catch (Exception ex) {
+				ErrorHandler.log(ex, e.getChannel());
+				e.getChannel().setTypingStatus(false);
 			}
-		} catch (Exception ex) {
-			ErrorHandler.log(ex, e.getChannel());
-			e.getChannel().setTypingStatus(false);
-		}
+		});
 	}
 }
