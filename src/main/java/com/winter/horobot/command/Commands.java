@@ -23,7 +23,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -66,6 +65,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 
 	/**
 	 * Sends the help lul
+	 *
 	 * @param e The event that triggered it
 	 * @return True on success, false on failure
 	 */
@@ -91,6 +91,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 
 	/**
 	 * Handles MessageReceivedEvent and processes it
+	 *
 	 * @param e The event
 	 */
 	@Override
@@ -99,7 +100,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 			try {
 				if (GuildUtil.getPrefixes(e.getGuild()).stream().anyMatch(e.getMessage().getContent()::startsWith)) {
 					String lookingFor = MessageUtil.args(e.getMessage());
-					COMMANDS.forEach(n -> {
+					for (Node<Command> n : COMMANDS) {
 						Node<Command> gotten = n.traverseThis(node -> node.getData().getAliases().stream().map(s -> {
 							if (node.getParent() != null) {
 								return node.getParent().compileTopDown(Command::getName, (s1, s2) -> s1 + " " + s2) + " " + s;
@@ -112,8 +113,9 @@ public class Commands implements IListener<MessageReceivedEvent> {
 							e.getChannel().setTypingStatus(true);
 							gotten.getData().call(e);
 							e.getChannel().setTypingStatus(false);
+							break;
 						}
-					});
+					}
 				}
 			} catch (Exception ex) {
 				ErrorHandler.log(ex, e.getChannel());
