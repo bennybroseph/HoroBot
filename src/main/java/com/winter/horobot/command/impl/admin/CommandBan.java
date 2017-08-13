@@ -8,14 +8,12 @@ import sx.blah.discord.handle.obj.Permissions;
 
 import java.util.Collections;
 
-/**
- * Created by WiNteR on 2017-08-13.
- */
 public class CommandBan extends Node<Command> {
 
 	public CommandBan() {
 		super(new Command(
 				"ban",
+				"ban-help",
 				PermissionChecks.hasPermision(Permissions.BAN),
 				AdminUtil::ban
 		), Collections.emptyList());

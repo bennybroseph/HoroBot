@@ -17,6 +17,7 @@ public class CommandKona extends Node<Command> {
 	public CommandKona() {
 		super(new Command(
 				"kona",
+				"kona-help",
 				PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 				e -> {
 					String[] tags = Arrays.copyOfRange(MessageUtil.argsArray(e.getMessage()), 2, MessageUtil.argsArray(e.getMessage()).length);
@@ -32,6 +33,7 @@ public class CommandKona extends Node<Command> {
 		), Arrays.asList(
 				new Node<>(new Command(
 						"nsfw",
+						"",
 						PermissionChecks.hasPermision(Permissions.SEND_MESSAGES).and(ChannelChecks.isNSFW()),
 						e -> {
 							String[] tags = Arrays.copyOfRange(MessageUtil.argsArray(e.getMessage()), 2, MessageUtil.argsArray(e.getMessage()).length);

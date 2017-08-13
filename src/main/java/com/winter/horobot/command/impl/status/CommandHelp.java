@@ -13,6 +13,7 @@ public class CommandHelp extends Node<Command> {
 	public CommandHelp() {
 		super(new Command(
 				"help",
+				"help-help",
 				PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 				Commands::sendHelp
 		), Collections.emptyList());

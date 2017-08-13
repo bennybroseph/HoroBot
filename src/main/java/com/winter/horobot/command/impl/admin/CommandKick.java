@@ -13,6 +13,7 @@ public class CommandKick extends Node<Command> {
 	public CommandKick() {
 		super(new Command(
 				"kick",
+				"kick-help",
 				PermissionChecks.hasPermision(Permissions.KICK),
 				AdminUtil::kick
 		), Collections.emptyList());

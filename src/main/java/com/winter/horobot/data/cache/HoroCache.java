@@ -24,7 +24,7 @@ public class HoroCache {
 	 */
 	public static GuildMeta get(IGuild guild) {
 		if (!guildCache.containsKey(guild)) {
-			LOGGER.debug("Trying to put user " + guild.getName() + " " + guild.getStringID() + " in the guild cache...");
+			LOGGER.debug("Trying to put guild " + guild.getName() + " " + guild.getStringID() + " in the guild cache...");
 			Database.set("INSERT INTO guilds.guild (id, language, prefixes, autoroles, welcome) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING;", guild.getStringID(), "en", new String[]{}, new Long[]{}, "none");
 			guildCache.put(guild, new GuildMeta(guild));
 			LOGGER.debug("Put guild " + guild.getName() + " " + guild.getStringID() + " in the guild cache");

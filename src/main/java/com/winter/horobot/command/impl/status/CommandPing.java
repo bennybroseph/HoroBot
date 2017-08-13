@@ -14,6 +14,7 @@ public class CommandPing extends Node<Command> {
 	public CommandPing() {
 		super(new Command(
 				"ping",
+				"ping-help",
 				PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 				StatusUtil::ping,
 				new HashSet<>(Collections.singleton("pong"))

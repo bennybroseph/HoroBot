@@ -8,10 +8,12 @@ import com.winter.horobot.data.locale.Localisation;
 import com.winter.horobot.data.Node;
 import com.winter.horobot.exceptions.ErrorHandler;
 import com.winter.horobot.util.*;
+import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.obj.Embed;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
@@ -43,8 +45,8 @@ public class Commands implements IListener<MessageReceivedEvent> {
 
 	}
 
-	private static final Map<Category, List<Node<Command>>> COMMAND_MAP = new EnumMap<>(Category.class);
-	private static final List<Node<Command>> COMMANDS = new ArrayList<>();
+	public static final Map<Category, List<Node<Command>>> COMMAND_MAP = new EnumMap<>(Category.class);
+	public static final List<Node<Command>> COMMANDS = new ArrayList<>();
 
 	static {
 		COMMAND_MAP.put(Category.DEV, new ArrayList<>(Arrays.asList(new CommandSet())));
@@ -55,26 +57,35 @@ public class Commands implements IListener<MessageReceivedEvent> {
 		COMMAND_MAP.values().forEach(COMMANDS::addAll);
 	}
 
+	/**
+	 * Sends the help lul
+	 * @param e The event that triggered it
+	 * @return True on success, false on failure
+	 */
 	public static boolean sendHelp(MessageReceivedEvent e) {
 		try {
-			IChannel dmChannel = e.getAuthor().getOrCreatePMChannel();
+			EmbedBuilder eb = new EmbedBuilder();
+			eb.withColor(ColorUtil.withinTwoHues(0.1f, 0.9f));
+			eb.withTitle("Here's the full list of commands!");
+			eb.withDescription("To get more information on a command use `.horohelp <command>` eg. `.horohelp ping`");
 			for (Map.Entry<Category, List<Node<Command>>> c : COMMAND_MAP.entrySet()) {
-				EmbedBuilder eb = new EmbedBuilder();
-				eb.withColor(Color.MAGENTA.darker());
-				eb.withTitle(Localisation.of(e.getGuild(), c.getKey().getName()) + " " + Localisation.of(e.getGuild(), "command"));
 				StringBuilder desc = new StringBuilder();
 				for (Node<Command> n : c.getValue()) {
-					desc.append("`").append(n.getData().getName()).append("`\n");
+					desc.append("**").append(n.getData().getName()).append("**, ");
 				}
-				eb.appendDescription(desc.toString());
-				dmChannel.sendMessage(eb.build());
+				eb.appendField(WordUtils.capitalize(c.getKey().getName()), desc.toString().substring(0, desc.toString().length() - 2), false);
 			}
+			e.getChannel().sendMessage(eb.build());
 			return true;
 		} catch (DiscordException de) {
 			return false;
 		}
 	}
 
+	/**
+	 * Handles MessageReceivedEvent and processes it
+	 * @param e The event
+	 */
 	@Override
 	public void handle(MessageReceivedEvent e) {
 		try {

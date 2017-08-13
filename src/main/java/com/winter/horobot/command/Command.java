@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 public class Command {
 
 	private final String name;
+	private final String help;
 	private final Predicate<MessageReceivedEvent> check;
 	private final Predicate<MessageReceivedEvent> call;
 	private final Set<String> aliases;
@@ -16,16 +17,18 @@ public class Command {
 	/**
 	 * Creates a new command class
 	 *
-	 * @param name  Name of the command or subcommand.
+	 * @param name  Name of the command or sub-command.
+	 * @param help  The help message key of the command.
 	 * @param check Whether to run the call or not.
 	 * @param call  Run the call, false means show help message. Help is determined by <code>[name]-help</code>.
 	 */
-	public Command(String name, Predicate<MessageReceivedEvent> check, Predicate<MessageReceivedEvent> call) {
-		this(name, check, call, new HashSet<>());
+	public Command(String name, String help, Predicate<MessageReceivedEvent> check, Predicate<MessageReceivedEvent> call) {
+		this(name, help, check, call, new HashSet<>());
 	}
 
-	public Command(String name, Predicate<MessageReceivedEvent> check, Predicate<MessageReceivedEvent> call, Set<String> aliases) {
+	public Command(String name, String help, Predicate<MessageReceivedEvent> check, Predicate<MessageReceivedEvent> call, Set<String> aliases) {
 		this.name = name;
+		this.help = help;
 		this.check = check;
 		this.call = call;
 		this.aliases = new HashSet<>(aliases);
@@ -44,6 +47,10 @@ public class Command {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getHelp() {
+		return help;
 	}
 
 	public Set<String> getAliases() {

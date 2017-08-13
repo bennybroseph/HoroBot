@@ -13,6 +13,7 @@ public class CommandHi extends Node<Command> {
 	public CommandHi() {
 		super(new Command(
 				"hi",
+				"hi-help",
 				PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 				e -> {
 					e.getChannel().sendMessage(Localisation.of(e.getGuild(), "hello"));

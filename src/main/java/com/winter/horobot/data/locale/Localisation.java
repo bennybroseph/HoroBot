@@ -93,7 +93,7 @@ public class Localisation {
 				break;
 		}
 		LOGGER.error("Missing message for key '" + messageKey + "' in translation '" + lang + "'");
-		return "Missing message for key '" + messageKey + "' in translation '" + lang + "'. This should be reported to the respective translator in the guild, (s)he should have a role with the language (s)he translates to. Simply shoot them a message, or just message Fox, whichever you fancy; https://discord.gg/MCUTSZz";
+		return "Missing message for key '" + messageKey + "' in translation '" + lang + "'. This should be reported [here](https://discord.gg/MCUTSZz).";
 	}
 
 	/**

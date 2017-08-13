@@ -18,6 +18,7 @@ public class CommandPrefix extends Node<Command> {
 	public CommandPrefix() {
 		super(new Command(
 				"prefix",
+				"kick-help",
 				PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 				e -> {
 					MessageUtil.sendMessage(e.getChannel(), "prefixes", Arrays.toString(GuildUtil.getPrefixes(e.getGuild()).toArray()));
@@ -26,6 +27,7 @@ public class CommandPrefix extends Node<Command> {
 		), Arrays.asList(
 				new Node<>(new Command(
 						"add",
+						"",
 						PermissionChecks.hasPermision(Permissions.MANAGE_SERVER),
 						e -> {
 							try {
@@ -39,6 +41,7 @@ public class CommandPrefix extends Node<Command> {
 				), Collections.emptyList()),
 				new Node<>(new Command(
 						"remove",
+						"",
 						PermissionChecks.hasPermision(Permissions.MANAGE_SERVER),
 						e -> {
 							try {

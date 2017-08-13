@@ -17,6 +17,7 @@ public class CommandHue extends Node<Command> {
 	public CommandHue() {
 		super(new Command(
 				"hue",
+				"hue-help",
 				PermissionChecks.hasPermision(Permissions.SEND_MESSAGES),
 				e -> {
 					float lower = Float.parseFloat(MessageUtil.argsArray(e.getMessage())[1]);
