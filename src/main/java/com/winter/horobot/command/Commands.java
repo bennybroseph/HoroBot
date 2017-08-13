@@ -65,7 +65,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 		COMMAND_MAP.values().forEach(COMMANDS::addAll);
 	}
 
-	public static boolean sendHelp(MessageReceivedEvent e) {
+	public static boolean sendHelp(MessageReceivedEvent e) { // please im being forced to do this please
 		try {
 			IChannel dmChannel = e.getAuthor().getOrCreatePMChannel();
 			for (Map.Entry<Category, List<Node<Command>>> c : COMMAND_MAP.entrySet()) {
@@ -83,7 +83,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 		} catch (DiscordException de) {
 			return false;
 		}
-	}
+	} // jokes
 
 	@Override
 	public void handle(MessageReceivedEvent e) {
