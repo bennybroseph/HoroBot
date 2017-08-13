@@ -90,9 +90,9 @@ public class Commands implements IListener<MessageReceivedEvent> {
 	@Override
 	public void handle(MessageReceivedEvent e) {
 		try {
-			Optional<String> o = GuildUtil.getPrefixes(e.getGuild()).stream().filter(e.getMessage().getContent()::startsWith).findFirst();
-			if (o.isPresent()) {
-				String lookingFor = Arrays.stream(e.getMessage().getContent().substring(o.get().length()).split("\\s+")).collect(Collectors.joining(" "));
+			String o = GuildUtil.getPrefixes(e.getGuild()).stream().filter(e.getMessage().getContent()::startsWith).reduce(".horo", (p1, p2) -> p1.length() > p2.length() ? p1 : p2);
+			if (e.getMessage().getContent().startsWith(o)) {
+				String lookingFor = "root " + Arrays.stream(e.getMessage().getContent().substring(o.get().length()).split("\\s+")).collect(Collectors.joining(" "));
 				for (Node<Command> n : COMMANDS) {
 					Node<Command> gotten = n.traverseThis(node -> node.getData().getAliases().stream().map(s -> {
 						if (node.getParent() != null) {
