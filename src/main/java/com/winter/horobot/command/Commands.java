@@ -90,7 +90,7 @@ public class Commands implements IListener<MessageReceivedEvent> {
 	@Override
 	public void handle(MessageReceivedEvent e) {
 		try {
-			Optional<String> o = GuildUtil.getPrefixes(e.getGuild()).stream().findFirst();
+			Optional<String> o = GuildUtil.getPrefixes(e.getGuild()).stream().filter(e.getMessage().getContent()::startsWith).findFirst();
 			if (o.isPresent()) {
 				String lookingFor = Arrays.stream(e.getMessage().getContent().substring(o.get().length()).split("\\s+")).collect(Collectors.joining(" "));
 				for (Node<Command> n : COMMANDS) {
